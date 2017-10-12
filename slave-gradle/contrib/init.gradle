@@ -1,0 +1,37 @@
+allprojects {
+    if (System.env.containsKey('MAVEN_MIRROR_URL')) {
+        buildscript {
+            repositories {
+                mavenLocal()
+                maven { url System.env.MAVEN_MIRROR_URL }
+            }
+        }
+        repositories {
+            mavenLocal()
+            maven { url System.env.MAVEN_MIRROR_URL }
+        }
+    }
+}
+
+projectsEvaluated {
+    allprojects {
+        apply plugin: 'maven-publish'
+
+        publishing.repositories {
+            // clear all repo
+            clear()
+            // add the new one
+            maven {
+                if (project.version.endsWith('-SNAPSHOT')) {
+                    url = System.env.MAVEN_PUBLISH_SNAPSHOT_URL
+                } else {
+                    url = System.env.MAVEN_PUBLISH_URL
+                }
+                credentials {
+                    username = System.env.MAVEN_PUBLISH_USERNAME
+                    password = System.env.MAVEN_PUBLISH_PASSWORD
+                }
+            }
+        }
+    }
+}
