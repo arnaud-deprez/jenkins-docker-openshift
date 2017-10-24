@@ -26,7 +26,7 @@ objects:
         <containers>
           <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
             <name>jnlp</name>
-            <image>imagestreamtag:cicd/jenkins-slave-gradle-centos7:latest</image>
+            <image>${IMAGE}</image>
             <privileged>false</privileged>
             <alwaysPullImage>false</alwaysPullImage>
             <workingDir>/tmp</workingDir>
