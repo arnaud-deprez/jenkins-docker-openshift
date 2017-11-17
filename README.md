@@ -6,10 +6,10 @@ This has been tested on an Openshift cluster and this is based on official Opens
 ## Jenkins master
 
 The jenkins master image is based on the official [openshift/jenkins](https://github.com/openshift/jenkins) image.
-More information [here](2/README.adoc).
+More information [here](2/README.md).
 
 ## Jenkins slave images
 
 Here is the current list of images:
 
-* [jenkins-slave-gradle](slave-gradle/README.adoc)
+* [jenkins-slave-gradle](slave-gradle/README.md)
