@@ -3,3 +3,4 @@ job-dsl:1.66
 jobConfigHistory:2.18
 throttle-concurrents:2.0.1
 build-monitor-plugin:1.11+build.201701152243
+timestamper:1.8.8
