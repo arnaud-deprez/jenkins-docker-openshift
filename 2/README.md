@@ -52,7 +52,7 @@ with the project where the above S2I build is created:
 oc new-app jenkins-persistent \
     -p NAMESPACE=cicd \
     -p JENKINS_IMAGE_STREAM_TAG=jenkins-custom:latest \
-    -p MEMORY_LIMIT=4Gi \
+    -p MEMORY_LIMIT=1Gi \
     -p VOLUME_CAPACITY=5Gi
 ```
 
