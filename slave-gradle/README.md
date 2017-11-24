@@ -25,9 +25,6 @@ these sources.
 ### Build the slave in openshift
 
 ```sh
-# Import the source image
-oc import-image jenkins-slave-maven-centos7:latest --from=docker.io/openshift/jenkins-slave-maven-centos7:latest --confirm
-# Build the new image
 oc new-build https://github.com/arnaud-deprez/jenkins-slave-docker.git --context-dir=slave-gradle --name=jenkins-slave-gradle-centos7
 ```
 
