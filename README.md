@@ -1,6 +1,6 @@
 # Jenkins docker images repository
 
-This repository contains jenkins docker images to run on kubernetes or openshift.
+This repository contains jenkins docker images to run on openshift.
 This has been tested on an Openshift cluster and this is based on official Openshift jenkins based image.
 
 ## Jenkins master

@@ -35,7 +35,7 @@ docker run -d --name jenkins -p 8080:8080 -e JENKINS_PASSWORD=password -e OPENSH
 
 ### With Openshift
 
-Create a Jenkins S2I build with this Bitbucket repository:
+Create a Jenkins S2I build with this GitHub repository:
 
 ```sh
 oc new-build jenkins:2~https://github.com/arnaud-deprez/jenkins-openshift-docker.git \
