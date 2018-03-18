@@ -13,3 +13,4 @@ More information [here](2/README.md).
 Here is the current list of images:
 
 * [jenkins-slave-gradle](slave-gradle/README.md)
+* [jenkins-slave-nodejs](slave-nodejs/README.md)

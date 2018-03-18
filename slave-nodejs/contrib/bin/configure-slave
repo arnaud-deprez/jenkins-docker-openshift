@@ -1,0 +1,5 @@
+#/bin/bash
+
+if [ -n "$NODE_MIRROR_URL" ]; then
+  npm config set registry "$NODE_MIRROR_URL"
+fi
