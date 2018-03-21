@@ -89,15 +89,15 @@ parameters:
 - name: MAVEN_MIRROR_URL
   description: "Maven mirror url from where jenkins will download artifacts"
   required: true
-  value: "http://nexus3.cicd.svc.cluster.local:8081/repository/maven-public"
+  value: "http://nexus3:8081/repository/maven-public"
 - name: MAVEN_PUBLISH_SNAPSHOT_URL
   description: "Maven repository url to where jenkins will upload snapshots artifacts"
   required: true
-  value: "http://nexus3.cicd.svc.cluster.local:8081/repository/maven-snapshots"
+  value: "http://nexus3:8081/repository/maven-snapshots"
 - name: MAVEN_PUBLISH_URL
   description: "Maven repository url to where jenkins will upload releases artifacts"
   required: true
-  value: "http://nexus3.cicd.svc.cluster.local:8081/repository/maven-releases"
+  value: "http://nexus3:8081/repository/maven-releases"
 - name: MAVEN_PUBLISH_USERNAME
   description: "Username used when upload artifacts"
   required: true

@@ -1,5 +1,10 @@
 #/bin/bash
 
-if [ -n "$NODE_MIRROR_URL" ]; then
-  npm config set registry "$NODE_MIRROR_URL"
+if [[ -n "$NPM_MIRROR_URL" ]]; then
+  npm config set registry "$NPM_MIRROR_URL"
+fi
+if [[ -n "$NPM_PUBLISH_URL" && -n "$NPM_PUBLISH_TOKEN" ]]; then
+  # https://help.sonatype.com/repomanager3/node-packaged-modules-and-npm-registries
+  repositoryWithoutProtocol=$(echo "${NPM_PUBLISH_URL}" | sed -E "s/https?\://g")
+  echo "$repositoryWithoutProtocol:_authToken=\${NPM_PUBLISH_TOKEN}" >> /home/jenkins/.npmrc
 fi
