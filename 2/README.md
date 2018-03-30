@@ -38,27 +38,54 @@ docker run -d --name jenkins -p 8080:8080 -e JENKINS_PASSWORD=password -e OPENSH
 Create a Jenkins S2I build with this GitHub repository:
 
 ```sh
-oc new-build jenkins:2~https://github.com/arnaud-deprez/jenkins-openshift-docker.git \
-    -e OVERRIDE_PV_CONFIG_WITH_IMAGE_CONFIG=true \
-    -e OVERRIDE_PV_PLUGINS_WITH_IMAGE_PLUGINS=true \
-    --context-dir=2 --name=jenkins-custom
-oc patch bc jenkins-custom -p '{"spec": {"successfulBuildsHistoryLimit": 2, "failedBuildsHistoryLimit": 2}}'
+oc process -f openshift/build-template.yml -p NAME=jenkins-custom | oc apply -f -
+oc start-build jenkins-custom-docker
 ```
+
+Or alternatively:
+
+```sh
+oc new-build https://github.com/arnaud-deprez/jenkins-openshift-docker.git \
+    --strategy=docker \
+    --image-stream=jenkins:2 \
+    --context-dir=2 --name=jenkins-custom
+oc patch bc jenkins-custom -p '{"spec": {"successfulBuildsHistoryLimit": 1, "failedBuildsHistoryLimit": 1}}'
+```
+
+This will automatically trigger the build.
 
 Then you can deploy the Jenkins templates with the customized image. Replace cicd
 with the project where the above S2I build is created:
+
+```sh
+oc process -f openshift/jenkins-persistent-template.yml \
+    -p NAMESPACE=cicd \
+    -p JENKINS_IMAGE_STREAM_TAG=jenkins-custom:latest \
+    -p MEMORY_LIMIT=2Gi \
+    -p VOLUME_CAPACITY=5Gi | oc apply -f -
+```
+
+Or alternatively:
 
 ```sh
 oc new-app jenkins-persistent \
     -p NAMESPACE=cicd \
     -p JENKINS_IMAGE_STREAM_TAG=jenkins-custom:latest \
     -p MEMORY_LIMIT=2Gi \
-    -p VOLUME_CAPACITY=5Gi
+    -p VOLUME_CAPACITY=5Gi \
+    -e OVERRIDE_PV_CONFIG_WITH_IMAGE_CONFIG=true \
+    -e OVERRIDE_PV_PLUGINS_WITH_IMAGE_PLUGINS=true
+# Optional:
+# By default jenkins service account has role edit in its project but it might be interesting to give him the admin role in its project
+# See Jenkins pipeline promotion
+oc policy add-role-to-user admin -z jenkins --rolebinding-name=jenkins_admin -n cicd
 ```
 
 This will deploy a jenkins instance and a service account Jenkins.
 
-## Allow Jenkins to deploy edit other projects
+The following is optional and depends a bit on what you want to do with Jenkins on Openshift.
+
+#### Allow Jenkins to deploy edit other projects
 
 If Jenkins needs to deploy application in other project than its own, it needs to have the role edit.
 You can achieve it by giving this role to the Jenkins service account:
@@ -66,11 +93,19 @@ You can achieve it by giving this role to the Jenkins service account:
 Replace $PROJECT with the desired one:
 
 ```sh
-oc new-project $PROJECT
-oc policy add-role-to-user edit system:serviceaccount:cicd:jenkins -n $PROJECT
+oc policy add-role-to-user edit -z jenkins -n $PROJECT
 ```
 
-## Allow a project B to pull image from another project A
+#### Allow Jenkins to create and delete its own projects
+
+If Jenkins needs to create project on demand, we need to give its service account the `self-provisioner` cluster role with 
+the following command (you need to be a cluster-admin):
+
+```sh
+oc adm policy add-cluster-role-to-user self-provisioner -z jenkins -n $PROJECT
+```
+
+#### Allow a project B to pull image from another project A
 
 For this, you need to provide image-puller access, so that $PROJECT_B project can pull an image from the $PROJECT_A project.
 

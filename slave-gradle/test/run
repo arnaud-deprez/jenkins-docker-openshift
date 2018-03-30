@@ -1,0 +1,14 @@
+#!/bin/bash
+function checkResult {
+    local code=$1
+    if [ $code -ne 0 ]; then
+        echo "FAIL: $2"
+        exit 1
+    fi
+}
+
+mvn -version
+checkResult $? "Maven is not installed correctly!"
+
+gradle -version
+checkResult $? "Gradle is not installed correctly!"

@@ -1,10 +1,13 @@
 #/bin/bash
 
+#fix: https://github.com/openshift/jenkins/issues/582
+echo "source /usr/local/bin/scl_enable" >> /tmp/.bashrc
+
 if [[ -n "$NPM_MIRROR_URL" ]]; then
-  npm config set registry "$NPM_MIRROR_URL"
+  npm -g config set registry "$NPM_MIRROR_URL"
 fi
 if [[ -n "$NPM_PUBLISH_URL" && -n "$NPM_PUBLISH_TOKEN" ]]; then
   # https://help.sonatype.com/repomanager3/node-packaged-modules-and-npm-registries
   repositoryWithoutProtocol=$(echo "${NPM_PUBLISH_URL}" | sed -E "s/https?\://g")
-  echo "$repositoryWithoutProtocol:_authToken=\${NPM_PUBLISH_TOKEN}" >> /home/jenkins/.npmrc
+  echo "$repositoryWithoutProtocol:_authToken=\${NPM_PUBLISH_TOKEN}" >> /home/jenkins/.npm-global/etc/npmrc
 fi

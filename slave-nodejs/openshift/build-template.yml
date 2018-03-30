@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Template
+labels:
+  build: jenkins
+  slave: nodejs
+metadata:
+  annotations:
+    iconClass: icon-jenkins
+    openshift.io/display-name: Jenkins Docker Build
+    tags: instant-app,jenkins
+  creationTimestamp: null
+  name: jenkins-slave-nodejs
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      build: jenkins
+      image: slave-nodejs
+      slave: nodejs
+      strategy: docker
+      app: ${NAME}
+    name: ${NAME}-docker
+  spec:
+    failedBuildsHistoryLimit: 1
+    successfulBuildsHistoryLimit: 1
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${NAME}:latest"
+    postCommit: 
+      command:
+      - /home/jenkins/test/run
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+    runPolicy: Serial
+    source:
+      type: Git
+      git:
+        uri: ${GIT_URI}
+        ref: ${GIT_REF}
+      contextDir: 'slave-nodejs'
+    strategy:
+      dockerStrategy:
+        noCache: true
+        forcePull: true
+      type: Docker
+    triggers: []
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: jenkins
+      image: slave-nodejs
+      app: ${NAME}
+    name: ${NAME}
+  spec: {}
+parameters:
+- description: The build name
+  displayName: Build Name
+  name: NAME
+  value: jenkins-slave-nodejs-centos7
+- description: The OpenShift Namespace where the Jenkins ImageStream resides.
+  displayName: Jenkins ImageStream Namespace
+  name: NAMESPACE
+  value: openshift
+- description: Git uri from where to retrieve the sources
+  displayName: Git URI
+  name: GIT_URI
+  value: https://github.com/arnaud-deprez/jenkins-openshift-docker.git
+- description: Git ref or branch from where to retrieve the sources
+  displayName: Git ref
+  name: GIT_REF
+  value: master

@@ -11,6 +11,7 @@ ENV NODEJS_VERSION=8 \
     PROMPT_COMMAND=". /usr/local/bin/scl_enable"
 
 ADD contrib/bin/* /usr/local/bin/
+ADD test $HOME/test/
 
 # Install NodeJS
 RUN yum install -y centos-release-scl-rh && \

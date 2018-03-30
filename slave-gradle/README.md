@@ -25,6 +25,13 @@ these sources.
 ### Build the slave in openshift
 
 ```sh
+oc process -f openshift/build-template.yml -p NAME=jenkins-slave-gradle-centos7 | oc apply -f -
+oc start-build jenkins-slave-gradle-centos7-docker
+```
+
+Or alternatively:
+
+```sh
 oc new-build https://github.com/arnaud-deprez/jenkins-slave-docker.git --context-dir=slave-gradle --name=jenkins-slave-gradle-centos7
 ```
 

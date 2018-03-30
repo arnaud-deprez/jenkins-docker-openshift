@@ -1,0 +1,17 @@
+#!/bin/bash
+function checkResult {
+    local code=$1
+    if [ $code -ne 0 ]; then
+        echo "FAIL: $2"
+        exit 1
+    fi
+}
+
+node --version
+checkResult $? "Node is not installed correctly!"
+
+npm --version
+checkResult $? "Npm is not installed correctly!"
+
+yarn --version
+checkResult $? "Yarn is not installed correctly!"

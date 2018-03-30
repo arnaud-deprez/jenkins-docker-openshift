@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# See https://docs.openshift.org/latest/creating_images/custom.html#custom-builder-image
+# for the list of environment variables set by OpenShift before the custom
+# builder image is run.
+#
+# Although set as part of the API, the environment variables
+# SOURCE_REPOSITORY/SOURCE_URI, SOURCE_CONTEXT_DIR and SOURCE_REF can also be
+# derived from the BUILD environment variable using a tool such as `jq`
+# (https://stedolan.github.io/jq/).  (Note: you would need to include the `jq`
+# binary in your custom builder image).  If necessary, this technique can be
+# used for extracting other values from the BUILD json from a shell script.
+#
+# SOURCE_REPOSITORY=$(jq -nr '(env.BUILD|fromjson).spec.source.git.uri')
+# SOURCE_URI=$(jq -nr '(env.BUILD|fromjson).spec.source.git.uri')
+# SOURCE_CONTEXT_DIR=$(jq -nr '(env.BUILD|fromjson).spec.source.contextDir')
+# SOURCE_REF=$(jq -nr '(env.BUILD|fromjson).spec.source.git.ref')
+
+set -o pipefail
+IFS=$'\n\t'
+
+IMAGE_NAME=${IMAGE_NAME-arnaudeprez/jenkins-2-centos7-candidate:latest}
+DOCKER_SOCKET=/var/run/docker.sock
+
+if [ ! -e "${DOCKER_SOCKET}" ]; then
+  echo "Docker socket missing at ${DOCKER_SOCKET}"
+  exit 1
+fi
+
+# More info here: https://www.testcontainers.org/usage/inside_docker.html
+GRADLE_PROJECT_DIR="$PWD/test/testcontainer"
+echo "Execute tests of in $GRADLE_PROJECT_DIR"
+docker run --rm -ti -v $GRADLE_PROJECT_DIR:$GRADLE_PROJECT_DIR -v $DOCKER_SOCKET:$DOCKER_SOCKET -w $GRADLE_PROJECT_DIR --user root gradle:4.6.0-jdk8-alpine gradle test -Pimage.name=$IMAGE_NAME --stacktrace

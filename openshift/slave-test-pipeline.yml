@@ -1,0 +1,48 @@
+kind: "BuildConfig"
+apiVersion: "v1"
+metadata:
+  labels:
+    build: jenkins
+    strategy: pipeline
+    app: jenkins-slave-test
+  name: "slave-test-pipeline"
+spec:
+  strategy:
+    jenkinsPipelineStrategy:
+      jenkinsfile: |-
+        pipeline { 
+          agent none 
+          stages {
+            stage('test gradle') {
+              agent { label 'gradle' } 
+              steps {
+                echo 'Hello from gradle slave'
+                sh 'mvn -version'
+                sh 'gradle -version'
+              }
+            }
+            stage('test nodejs') {
+              agent { label 'nodejs' }
+              steps {
+                echo 'Hello from nodejs slave'
+                sh 'node --version'
+                sh 'npm --version'
+                sh 'yarn --version'
+              }
+            }
+            stage('test gradle-nodejs') {
+              agent { label 'gradle-nodejs' }
+              steps {
+                echo 'Hello from gradle-nodejs slave'
+                sh 'mvn -version'
+                sh 'gradle -version'
+                container('nodejs') {
+                  echo 'In container nodejs...'
+                  sh 'node --version'
+                  sh 'npm --version'
+                  sh 'yarn --version'
+                }
+              }
+            }
+          }
+        }

@@ -26,6 +26,13 @@ these sources.
 ### Build the slave in openshift
 
 ```sh
+oc process -f openshift/build-template.yml -p NAME=jenkins-slave-nodejs-centos7 | oc apply -f -
+oc start-build jenkins-slave-nodejs-centos7-docker
+```
+
+Or alternatively:
+
+```sh
 oc new-build https://github.com/arnaud-deprez/jenkins-slave-docker.git --context-dir=slave-nodejs --name=jenkins-slave-nodejs-centos7
 ```
 
@@ -55,3 +62,7 @@ image directly in your slave config:
 oc process -f https://raw.githubusercontent.com/arnaud-deprez/jenkins-slave-docker/master/slave-nodejs/openshift/slave-config-ephemeral.yml \
   -p IMAGE=arnaudeprez/jenkins-slave-nodejs:latest | oc apply -f -
 ```
+
+## Testing
+
+Multibranch pipeline support: https://github.com/openshift/jenkins-sync-plugin/issues/190

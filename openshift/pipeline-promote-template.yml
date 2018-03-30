@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Template
+labels:
+  build: jenkins
+metadata:
+  annotations:
+    iconClass: icon-jenkins
+    openshift.io/display-name: Jenkins Docker Build
+    tags: instant-app,jenkins
+  creationTimestamp: null
+  name: jenkins-pipeline-promote-template
+objects:
+- kind: "BuildConfig"
+  apiVersion: "v1"
+  metadata:
+    labels:
+      build: jenkins
+      strategy: pipeline
+      app: jenkins-promote
+    name: "jenkins-promote-pipeline"
+  spec:
+    strategy:
+      jenkinsPipelineStrategy:
+        env:
+        - name: BRANCH_NAME
+          value: master
+        jenkinsfile: >-
+          #!/usr/bin/env groovy
+          // Quiet down Jenkins before promoting: POST http://jenkins.cicd.svc.cluster.local/quietDown
+          // Count current running job (= builds): POST http://jenkins.cicd.svc.cluster.local/computer/api/json (and read field busyExecutors)
+
+          def deployMaster(options = [:]) {
+            def project = openshift.project()
+            def imageStreamTag = 'jenkins-custom:latest'
+            echo "Configure persistent jenkins master in project $project"
+            def deployment = openshift.process(readFile('2/openshift/jenkins-persistent-template.yml'), 
+              '-p', "ENABLE_OAUTH=${options.get('enableOAuth', true)}", 
+              '-p', "JENKINS_IMAGE_STREAM_TAG=$imageStreamTag", 
+              '-p', "NAMESPACE=$project", 
+              '-p', "VOLUME_CAPACITY=${options.get('volumeCapacity', '5Gi')}")
+            
+            // Do not replay PersistenceVolumeClaim if already exists
+            deployment = deployment.findAll {
+              it.kind != 'RoleBinding' &&
+              (openshift.selector('PersistentVolumeClaim', 'jenkins').exists() ?
+                it.kind != 'PersistentVolumeClaim' : 
+                true)
+            }
+            
+            echo "Promote jenkins master from cicd-staging/$imageStreamTag to $project/$imageStreamTag"
+            openshift.tag("cicd-staging/$imageStreamTag", "$project/$imageStreamTag")
+
+            echo "Apply: $deployment"
+            openshift.apply(deployment).narrow('dc').withEach { dc ->
+              timeout(time: 10, unit: 'MINUTES') {
+                dc.untilEach(1) {
+                  it.rollout().status().out.contains('successfully rolled out')
+                }
+              }
+            }
+          }
+
+          def configureSlave(slave, type, options = [:]) {
+            def project = openshift.project()
+            echo "Configure $type jenkins slave $slave in project $project"
+            def cfg = (type == 'persistent' ? 
+              openshift.process(readFile("slave-${slave}/openshift/slave-config-${type}.yml"), 
+                '-p', "IMAGE=imagestreamtag:${project}/jenkins-slave-${slave}-centos7:latest", 
+                '-p', "VOLUME_CAPACITY=${options.get('volumeCapacity', '10Gi')}") : 
+              openshift.process(readFile("slave-${slave}/openshift/slave-config-${type}.yml"), 
+                '-p', "IMAGE=imagestreamtag:${project}/jenkins-slave-${slave}-centos7:latest"))
+            openshift.apply(cfg)
+
+            echo "Promote $type jenkins slave from cicd-staging/jenkins-slave-${slave}-centos7:latest to $project/jenkins-slave-${slave}-centos7:latest"
+            openshift.tag("cicd-staging/jenkins-slave-${slave}-centos7:latest", "$project/jenkins-slave-${slave}-centos7:latest")
+          }
+
+          pipeline {
+            options {
+              buildDiscarder(logRotator(numToKeepStr: '5'))
+              disableConcurrentBuilds()
+            }
+
+            agent any
+
+            stages {
+              stage('Checkout') {
+                steps {
+                  git url: 'https://github.com/arnaud-deprez/jenkins-docker-openshift.git', branch: params.BRANCH_NAME
+                }
+              }
+              stage('Promote') {
+                steps {
+                  script {
+                    openshift.withCluster() {
+                      openshift.withProject('cicd') {
+                        deployMaster([enableOAuth: true, volumeCapacity: '5Gi'])
+                        configureSlave('gradle', 'persistent', [volumeCapacity: '10Gi'])
+                        //TODO: use a persistent nodejs node configuration
+                        configureSlave('nodejs', 'ephemeral')  
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }

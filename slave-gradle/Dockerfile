@@ -4,7 +4,9 @@ LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 
 USER root
 
-ADD ./contrib/init.gradle $HOME/.gradle/
+ADD ./contrib/gradle/* $HOME/.gradle/
+ADD ./contrib/bin/* /usr/local/bin/
+ADD test $HOME/test/
 
 RUN chown -R 1001:0 $HOME && \
     chmod -R g+rw $HOME
