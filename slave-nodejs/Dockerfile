@@ -1,4 +1,4 @@
-FROM openshift/jenkins-slave-base-centos7:v3.7
+FROM openshift/jenkins-slave-base-centos7:v3.9
 
 MAINTAINER Arnaud Deprez<arnaudeprez@gmail.com>
 
