@@ -42,6 +42,10 @@ objects:
         </containers>
         <envVars>
           <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+            <key>CI</key>
+            <value>true</value>
+          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
             <key>NPM_MIRROR_URL</key>
             <value>${NPM_MIRROR_URL}</value>
           </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
