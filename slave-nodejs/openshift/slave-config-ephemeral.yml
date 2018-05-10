@@ -33,30 +33,30 @@ objects:
             <command></command>
             <args>${computer.jnlpmac} ${computer.name}</args>
             <ttyEnabled>false</ttyEnabled>
-            <resourceRequestCpu>100m</resourceRequestCpu>
-            <resourceRequestMemory>128Mi</resourceRequestMemory>
-            <resourceLimitCpu>2000m</resourceLimitCpu>
-            <resourceLimitMemory>512Mi</resourceLimitMemory>
+            <resourceRequestCpu>400m</resourceRequestCpu>
+            <resourceRequestMemory>512Mi</resourceRequestMemory>
+            <resourceLimitCpu>2</resourceLimitCpu>
+            <resourceLimitMemory>2048Mi</resourceLimitMemory>
             <envVars/>
           </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
         </containers>
         <envVars>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>CI</key>
             <value>true</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>NPM_MIRROR_URL</key>
             <value>${NPM_MIRROR_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>NPM_PUBLISH_URL</key>
             <value>${NPM_PUBLISH_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>NPM_PUBLISH_TOKEN</key>
             <value>${NPM_PUBLISH_TOKEN}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
         </envVars>
         <annotations/>
         <imagePullSecrets/>

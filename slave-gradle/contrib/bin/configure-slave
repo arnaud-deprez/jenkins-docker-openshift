@@ -1,4 +1,0 @@
-#!/bin/bash
-
-#fix: https://github.com/openshift/jenkins/issues/582
-echo "source /usr/local/bin/scl_enable" >> /tmp/.bashrc

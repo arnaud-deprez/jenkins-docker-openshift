@@ -17,7 +17,6 @@ spec:
               agent { label 'gradle' } 
               steps {
                 echo 'Hello from gradle slave'
-                sh 'mvn -version'
                 sh 'gradle -version'
               }
             }
@@ -34,7 +33,6 @@ spec:
               agent { label 'gradle-nodejs' }
               steps {
                 echo 'Hello from gradle-nodejs slave'
-                sh 'mvn -version'
                 sh 'gradle -version'
                 container('nodejs') {
                   echo 'In container nodejs...'

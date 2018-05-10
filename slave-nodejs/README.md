@@ -62,7 +62,3 @@ image directly in your slave config:
 oc process -f https://raw.githubusercontent.com/arnaud-deprez/jenkins-slave-docker/master/slave-nodejs/openshift/slave-config-ephemeral.yml \
   -p IMAGE=arnaudeprez/jenkins-slave-nodejs:latest | oc apply -f -
 ```
-
-## Testing
-
-Multibranch pipeline support: https://github.com/openshift/jenkins-sync-plugin/issues/190

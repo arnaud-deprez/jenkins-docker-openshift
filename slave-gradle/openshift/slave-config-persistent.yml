@@ -52,34 +52,38 @@ objects:
             <command></command>
             <args>${computer.jnlpmac} ${computer.name}</args>
             <ttyEnabled>false</ttyEnabled>
-            <resourceRequestCpu>100m</resourceRequestCpu>
-            <resourceRequestMemory>128Mi</resourceRequestMemory>
-            <resourceLimitCpu>2000m</resourceLimitCpu>
-            <resourceLimitMemory>512Mi</resourceLimitMemory>
+            <resourceRequestCpu>400m</resourceRequestCpu>
+            <resourceRequestMemory>512Mi</resourceRequestMemory>
+            <resourceLimitCpu>2</resourceLimitCpu>
+            <resourceLimitMemory>2048Mi</resourceLimitMemory>
             <envVars/>
           </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
         </containers>
         <envVars>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            <key>_JAVA_OPTIONS</key>
+            <value>-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xmx256m</value>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>MAVEN_MIRROR_URL</key>
             <value>${MAVEN_MIRROR_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>MAVEN_PUBLISH_SNAPSHOT_URL</key>
             <value>${MAVEN_PUBLISH_SNAPSHOT_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>MAVEN_PUBLISH_URL</key>
             <value>${MAVEN_PUBLISH_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>MAVEN_PUBLISH_USERNAME</key>
             <value>${MAVEN_PUBLISH_USERNAME}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
             <key>MAVEN_PUBLISH_PASSWORD</key>
             <value>${MAVEN_PUBLISH_PASSWORD}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.PodEnvVar>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
         </envVars>
         <annotations/>
         <imagePullSecrets/>

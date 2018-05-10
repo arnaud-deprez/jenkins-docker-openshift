@@ -27,7 +27,7 @@ In this scenario, we will see how we can use Jenkins and its pipeline to promote
 
 ### Build and deploy pipeline
 
-//TODO: screenshot
+![pipeline test](doc/images/pipeline-test.png "Pipeline to build and test Jenkins")
 
 Here are the steps:
 
@@ -35,9 +35,11 @@ Here are the steps:
 * Then if the builds succeed, it deploys the new jenkins master and its slaves in `cicd-staging` environment and then it will run a test pipeline against it to ensure that we didn't break anything. It will also apply the changes on `jenkins-promote-pipeline` job if needed.
 * Finally, if it builds the `master` branch, it will trigger the job `jenkins-promote-pipeline` in the jenkins instance from the `cicd-staging` environment with `BRANCH_NAME=master` as parameter.
 
+![pipeline test](doc/images/pipeline-test-trigger-promote.png "Pipeline to build, test Jenkins and trigger the promotion")
+
 ### Promote pipeline
 
-//TODO: screenshot
+![pipeline test](doc/images/pipeline-promote.png "Pipeline to promote jenkins from cicd-staging to cicd")
 
 Here are the steps:
 
@@ -48,8 +50,8 @@ Here are the steps:
 
 ```sh
 oc new-project cicd
-oc process -f openshift/jenkins-ephemeral-template.yml | oc apply -n cicd -f -
+oc process -f 2/openshift/jenkins-ephemeral-template.yml | oc apply -n cicd -f -
 oc adm policy add-cluster-role-to-user self-provisioner -z jenkins -n cicd
 ```
 
-Then you just need to configure a multi-branch pipeline pointing to the git repository https://github.com/arnaud-deprez/jenkins-docker-openshift.git (or to your own repository) in that temporary jenkins instance.
+While waiting for the [Multibranch pipeline support in BuildConfig](https://github.com/openshift/jenkins-sync-plugin/issues/190), you just need to configure a multi-branch pipeline pointing to the git repository https://github.com/arnaud-deprez/jenkins-docker-openshift.git (or to your own repository) in that temporary jenkins instance.

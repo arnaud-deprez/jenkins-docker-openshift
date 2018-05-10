@@ -7,8 +7,5 @@ function checkResult {
     fi
 }
 
-mvn -version
-checkResult $? "Maven is not installed correctly!"
-
 gradle -version
 checkResult $? "Gradle is not installed correctly!"
