@@ -3,8 +3,7 @@ FROM openshift/jenkins-slave-base-centos7:v3.9
 LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 
 ENV GRADLE_VERSION=4.6 \
-    GRADLE_HOME=/opt/gradle \
-    GRADLE_USER_HOME=/home/jenkins/.gradle
+    GRADLE_HOME=/opt/gradle
 
 ARG GRADLE_DOWNLOAD_SHA256=98bd5fd2b30e070517e03c51cbb32beee3e2ee1a84003a5a5d748996d4b1b915
 RUN set -o errexit -o nounset \
