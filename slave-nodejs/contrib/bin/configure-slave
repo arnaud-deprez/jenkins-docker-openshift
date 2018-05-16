@@ -1,8 +1,5 @@
 #/bin/bash
 
-#fix: https://github.com/openshift/jenkins/issues/582
-echo "source /usr/local/bin/scl_enable" >> /tmp/.bashrc
-
 if [[ -n "$NPM_MIRROR_URL" ]]; then
   npm -g config set registry "$NPM_MIRROR_URL"
 fi
