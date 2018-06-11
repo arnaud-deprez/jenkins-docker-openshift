@@ -1,23 +1,23 @@
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template
 labels:
   build: jenkins
-  slave: gradle
+  slave: base
 metadata:
   annotations:
     iconClass: icon-jenkins
     openshift.io/display-name: Jenkins Docker Build
     tags: instant-app,jenkins
   creationTimestamp: null
-  name: jenkins-slave-gradle
+  name: jenkins-agent-base
 objects:
-- apiVersion: v1
+- apiVersion: build.openshift.io/v1
   kind: BuildConfig
   metadata:
     labels:
       build: jenkins
-      image: slave-gradle
-      slave: gradle
+      image: agent-base
+      slave: base
       strategy: docker
       app: ${NAME}
     name: ${NAME}-docker
@@ -44,19 +44,19 @@ objects:
       git:
         uri: ${GIT_URI}
         ref: ${GIT_REF}
-      contextDir: 'slave-gradle'
+      contextDir: 'agent-base'
     strategy:
       dockerStrategy:
         noCache: true
         forcePull: true
       type: Docker
     triggers: []
-- apiVersion: v1
+- apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
     labels:
       build: jenkins
-      image: slave-gradle
+      image: agent-base
       app: ${NAME}
     name: ${NAME}
   spec: {}
@@ -64,7 +64,7 @@ parameters:
 - description: The build name
   displayName: Build Name
   name: NAME
-  value: jenkins-slave-gradle-centos7
+  value: jenkins-agent-base
 - description: The OpenShift Namespace where the Jenkins ImageStream resides.
   displayName: Jenkins ImageStream Namespace
   name: NAMESPACE

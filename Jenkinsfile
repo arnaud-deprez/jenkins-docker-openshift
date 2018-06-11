@@ -70,10 +70,10 @@ def configureSlave(slave, type, options = [:]) {
   def project = openshift.project()
   echo "Configure $type jenkins slave $slave in project $project"
   def cfg = (type == 'persistent' ? 
-    openshift.process(readFile("slave-${slave}/openshift/slave-config-${type}.yml"), 
+    openshift.process(readFile("agent-${slave}/openshift/agent-config-${type}.yml"), 
       '-p', "IMAGE=imagestreamtag:$project/${options.get('image')}:latest", 
       '-p', "VOLUME_CAPACITY=${options.get('volumeCapacity', '10Gi')}") : 
-    openshift.process(readFile("slave-${slave}/openshift/slave-config-${type}.yml"), 
+    openshift.process(readFile("agent-${slave}/openshift/agent-config-${type}.yml"), 
       '-p', "IMAGE=imagestreamtag:$project/${options.get('image')}:latest"))
   openshift.apply(cfg)
 }
@@ -119,7 +119,7 @@ pipeline {
       steps {
         script {
           inProject(getProjectName()) {
-            ['2', 'slave-gradle', 'slave-nodejs'].collect {
+            ['2', 'agent-gradle', 'agent-nodejs'].collect {
               buildImage(it)
             }.each { build ->
               echo "Verify build: ${build.name()}..."
@@ -144,9 +144,9 @@ pipeline {
             else {
               deployMaster('ephemeral')
             }
-            configureSlave('gradle', 'ephemeral', [image: 'jenkins-slave-gradle-centos7'])
-            configureSlave('nodejs', 'ephemeral', [image: 'jenkins-slave-nodejs-centos7'])
-            configureSlave('gradle-nodejs', 'ephemeral', [image: 'jenkins-slave-nodejs-centos7'])
+            configureSlave('gradle', 'ephemeral', [image: 'jenkins-agent-gradle'])
+            configureSlave('nodejs', 'ephemeral', [image: 'jenkins-agent-nodejs'])
+            configureSlave('gradle-nodejs', 'ephemeral', [image: 'jenkins-agent-nodejs'])
           }
         }
       }
@@ -169,8 +169,8 @@ pipeline {
             script {
               def project = getProjectName()
               inProject(project) {
-                echo "Run test slave-test-pipeline in project $project"
-                def buildCfg = openshift.apply(readFile("openshift/slave-test-pipeline.yml")).narrow('bc')
+                echo "Run test agent-test-pipeline in project $project"
+                def buildCfg = openshift.apply(readFile("openshift/agent-test-pipeline.yml")).narrow('bc')
                 def build = buildCfg.startBuild()
                 echo "Verify test pipeline ${build.name()}..."
                 timeout(time: 10, unit: 'MINUTES') {

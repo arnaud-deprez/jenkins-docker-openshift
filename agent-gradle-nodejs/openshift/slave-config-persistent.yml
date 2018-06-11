@@ -1,10 +1,10 @@
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   labels:
-    template: jenkins-slave-gradle-template
+    template: jenkins-agent-gradle-nodejs-template
     role: jenkins-slave
-  name: jenkins-slave-gradle
+  name: jenkins-agent-gradle-nodejs
 objects:
 - apiVersion: v1
   kind: PersistentVolumeClaim
@@ -24,15 +24,15 @@ objects:
   metadata:
     labels:
       role: jenkins-slave
-    name: jenkins-slave-gradle
+    name: jenkins-agent-gradle-nodejs
   data:
-    gradle: |-
+    nodejs: |-
       <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
-        <inheritFrom></inheritFrom>
-        <name>gradle</name>
+        <inheritFrom>gradle</inheritFrom>
+        <name>gradle-nodejs</name>
         <instanceCap>10</instanceCap>
         <idleMinutes>15</idleMinutes>
-        <label>gradle</label>
+        <label>gradle-nodejs</label>
         <serviceAccount>jenkins</serviceAccount>
         <nodeSelector></nodeSelector>
         <volumes>
@@ -44,14 +44,14 @@ objects:
         </volumes>
         <containers>
           <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
-            <name>jnlp</name>
+            <name>nodejs</name>
             <image>${IMAGE}</image>
             <privileged>false</privileged>
             <alwaysPullImage>true</alwaysPullImage>
             <workingDir>/tmp</workingDir>
             <command></command>
-            <args>${computer.jnlpmac} ${computer.name}</args>
-            <ttyEnabled>false</ttyEnabled>
+            <args>cat</args>
+            <ttyEnabled>true</ttyEnabled>
             <resourceRequestCpu>400m</resourceRequestCpu>
             <resourceRequestMemory>512Mi</resourceRequestMemory>
             <resourceLimitCpu>2</resourceLimitCpu>
@@ -84,6 +84,22 @@ objects:
             <key>MAVEN_PUBLISH_PASSWORD</key>
             <value>${MAVEN_PUBLISH_PASSWORD}</value>
           </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            <key>CI</key>
+            <value>true</value>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            <key>NPM_MIRROR_URL</key>
+            <value>${NPM_MIRROR_URL}</value>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            <key>NPM_PUBLISH_URL</key>
+            <value>${NPM_PUBLISH_URL}</value>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            <key>NPM_PUBLISH_TOKEN</key>
+            <value>${NPM_PUBLISH_TOKEN}</value>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
         </envVars>
         <annotations/>
         <imagePullSecrets/>
@@ -110,13 +126,25 @@ parameters:
   description: "Password used when upload artifacts"
   required: true
   value: "jenkins"
+- name: NPM_MIRROR_URL
+  description: "Maven mirror url from where jenkins will download artifacts"
+  required: true
+  value: "http://nexus3:8081/repository/npm-public/"
+- name: NPM_PUBLISH_URL
+  description: "Maven repository url to where jenkins will upload releases artifacts"
+  required: true
+  value: "http://nexus3:8081/repository/npm-releases/"
+- name: NPM_PUBLISH_TOKEN
+  description: "Npm user used when upload artifacts"
+  required: true
+  value: "NpmToken.b5505337-ffb2-3fac-8b3a-fcd81b8bb8fb"
 - name: IMAGE
   description: |-
-    Docker image reference of the gradle slave.
+    Docker image reference of the node slave.
     You can use imagestreamtag:<namespace>/<imagestream>:<tag> if you want to use
     an imagestreamtag as a reference for this
   required: true
-  value: "imagestreamtag:cicd/jenkins-slave-gradle-centos7:latest"
+  value: "imagestreamtag:cicd/jenkins-agent-nodejs:latest"
 - name: VOLUME_CAPACITY
   description: Local volume capacity for gradle cache
   required: true

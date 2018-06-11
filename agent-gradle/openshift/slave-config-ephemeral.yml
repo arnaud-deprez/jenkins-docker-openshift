@@ -1,25 +1,25 @@
-apiVersion: v1
+apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   labels:
-    template: jenkins-slave-nodejs-template
+    template: jenkins-agent-gradle-template
     role: jenkins-slave
-  name: jenkins-slave-nodejs
+  name: jenkins-agent-gradle
 objects:
 - apiVersion: v1
   kind: ConfigMap
   metadata:
     labels:
       role: jenkins-slave
-    name: jenkins-slave-nodejs
+    name: jenkins-agent-gradle
   data:
-    nodejs: |-
+    gradle: |-
       <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
         <inheritFrom></inheritFrom>
-        <name>nodejs</name>
+        <name>gradle</name>
         <instanceCap>10</instanceCap>
         <idleMinutes>15</idleMinutes>
-        <label>nodejs</label>
+        <label>gradle</label>
         <serviceAccount>jenkins</serviceAccount>
         <nodeSelector></nodeSelector>
         <volumes/>
@@ -42,20 +42,28 @@ objects:
         </containers>
         <envVars>
           <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>CI</key>
-            <value>true</value>
+            <key>_JAVA_OPTIONS</key>
+            <value>-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xmx256m</value>
           </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
           <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>NPM_MIRROR_URL</key>
-            <value>${NPM_MIRROR_URL}</value>
+            <key>MAVEN_MIRROR_URL</key>
+            <value>${MAVEN_MIRROR_URL}</value>
           </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
           <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>NPM_PUBLISH_URL</key>
-            <value>${NPM_PUBLISH_URL}</value>
+            <key>MAVEN_PUBLISH_SNAPSHOT_URL</key>
+            <value>${MAVEN_PUBLISH_SNAPSHOT_URL}</value>
           </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
           <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>NPM_PUBLISH_TOKEN</key>
-            <value>${NPM_PUBLISH_TOKEN}</value>
+            <key>MAVEN_PUBLISH_URL</key>
+            <value>${MAVEN_PUBLISH_URL}</value>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            <key>MAVEN_PUBLISH_USERNAME</key>
+            <value>${MAVEN_PUBLISH_USERNAME}</value>
+          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            <key>MAVEN_PUBLISH_PASSWORD</key>
+            <value>${MAVEN_PUBLISH_PASSWORD}</value>
           </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
         </envVars>
         <annotations/>
@@ -63,22 +71,30 @@ objects:
         <nodeProperties/>
       </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
 parameters:
-- name: NPM_MIRROR_URL
+- name: MAVEN_MIRROR_URL
   description: "Maven mirror url from where jenkins will download artifacts"
   required: true
-  value: "http://nexus3:8081/repository/npm-public/"
-- name: NPM_PUBLISH_URL
+  value: "http://nexus3:8081/repository/maven-public"
+- name: MAVEN_PUBLISH_SNAPSHOT_URL
+  description: "Maven repository url to where jenkins will upload snapshots artifacts"
+  required: true
+  value: "http://nexus3:8081/repository/maven-snapshots"
+- name: MAVEN_PUBLISH_URL
   description: "Maven repository url to where jenkins will upload releases artifacts"
   required: true
-  value: "http://nexus3:8081/repository/npm-releases/"
-- name: NPM_PUBLISH_TOKEN
-  description: "Npm user used when upload artifacts"
+  value: "http://nexus3:8081/repository/maven-releases"
+- name: MAVEN_PUBLISH_USERNAME
+  description: "Username used when upload artifacts"
   required: true
-  value: "NpmToken.b5505337-ffb2-3fac-8b3a-fcd81b8bb8fb"
+  value: "jenkins"
+- name: MAVEN_PUBLISH_PASSWORD
+  description: "Password used when upload artifacts"
+  required: true
+  value: "jenkins"
 - name: IMAGE
   description: |-
-    Docker image reference of the node slave.
+    Docker image reference of the gradle slave.
     You can use imagestreamtag:<namespace>/<imagestream>:<tag> if you want to use
     an imagestreamtag as a reference for this
   required: true
-  value: "imagestreamtag:cicd/jenkins-slave-nodejs-centos7:latest"
+  value: "imagestreamtag:cicd/jenkins-agent-gradle:latest"

@@ -1,0 +1,81 @@
+{{- if .Values.Agent.Enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+{{ include "jenkins-openshift.labels" . | indent 4 }}
+    role: jenkins-slave
+  name: jenkins-agent-template
+data:
+{{- range $pkey, $pval := .Values.Agent.PodTemplates }}
+  {{ $pval.Name }}: |-
+    <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+      <inheritFrom></inheritFrom>
+      <name>{{ $pval.Name }}</name>
+      <instanceCap>10</instanceCap>
+      <idleMinutes>15</idleMinutes>
+      <label>{{ $pval.Label }}</label>
+{{- if $pval.ServiceAccount }}
+      <serviceAccount>{{ $pval.ServiceAccount }}</serviceAccount>
+{{- end }}
+      <nodeSelector>
+{{- range $key, $value := $pval.NodeSelector }}
+        {{- $key }}: {{ $value }}
+{{- end }}
+      </nodeSelector>
+      <volumes>
+{{- range $index, $pvolume := $pval.Volumes }}
+        <org.csanchez.jenkins.plugins.kubernetes.volumes.{{ $pvolume.Type}}>
+          <mountPath>{{ $pvolume.MountPath }}</mountPath>
+          {{- if eq "HostPathVolume" $pvolume.Type }}
+          <hostPath>{{ $pvolume.HostPath }}</hostPath>
+          {{- else if eq "ConfigMapVolume" $pvolume.Type }}
+          <configMapName>{{ $pvolume.ConfigMapName }}</configMapName>
+          {{- else if eq "SecretVolume" $pvolume.Type }}
+          <secretName>{{ $pvolume.SecretName }}</secretName>
+          {{- else if eq "PersistentVolumeClaim" $pvolume.Type }}
+          <claimName>{{ $pvolume.ClaimName }}</claimName>
+          <readOnly>{{ default false $pvolume.ReadOnly }}</readOnly>
+          {{- end }}
+        </org.csanchez.jenkins.plugins.kubernetes.volumes.{{ $pvolume.Type}}>
+{{- end}}
+      </volumes>
+      <containers>
+{{- range $ckey, $cval := $pval.Containers }}
+        <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+          <name>{{ default "jnlp" $cval.Name | lower }}</name>
+          <image>{{ $cval.Image }}:{{ default "latest" $pval.ImageTag }}</image>
+          <privileged>{{ default false $cval.Privileged }}</privileged>
+          <alwaysPullImage>{{ default true $cval.AlwaysPullImage }}</alwaysPullImage>
+          <workingDir>/tmp</workingDir>
+          <command>{{ $cval.Command }}</command>
+          <args>{{ default "${computer.jnlpmac} ${computer.name}" $cval.Command }}</args>
+          <ttyEnabled>{{ default false $cval.TtyEnabled }}</ttyEnabled>
+          <resourceRequestCpu>{{ $cval.Resources.RequestCpu }}</resourceRequestCpu>
+          <resourceRequestMemory>{{ $cval.Resources.RequestMemory }}</resourceRequestMemory>
+          <resourceLimitCpu>{{ default "" $cval.Resources.LimitCpu }}</resourceLimitCpu>
+          <resourceLimitMemory>{{ default "" $cval.Resources.LimitMemory }}</resourceLimitMemory>
+          <envVars/>
+        </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+{{- end }}
+      </containers>
+      <envVars>
+{{- range $ekey, $eval := $pval.Env }}
+        <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          <key>{{ $ekey }}</key>
+          <value>{{ $eval }}</value>
+        </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+{{- end }}
+      </envVars>
+      <annotations/>
+      <imagePullSecrets>
+{{- if $pval.ImagePullSecret }}
+        <org.csanchez.jenkins.plugins.kubernetes.PodImagePullSecret>
+          <name>{{ $pval.ImagePullSecret }}</name>
+        </org.csanchez.jenkins.plugins.kubernetes.PodImagePullSecret>
+{{- end }}
+      </imagePullSecrets>
+      <nodeProperties/>
+    </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+{{- end }}
+{{- end }}

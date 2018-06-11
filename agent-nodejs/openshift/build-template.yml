@@ -2,20 +2,22 @@ apiVersion: template.openshift.io/v1
 kind: Template
 labels:
   build: jenkins
+  slave: nodejs
 metadata:
   annotations:
     iconClass: icon-jenkins
     openshift.io/display-name: Jenkins Docker Build
     tags: instant-app,jenkins
   creationTimestamp: null
-  name: jenkins-docker
+  name: jenkins-agent-nodejs
 objects:
 - apiVersion: build.openshift.io/v1
   kind: BuildConfig
   metadata:
     labels:
       build: jenkins
-      image: '2'
+      image: agent-nodejs
+      slave: nodejs
       strategy: docker
       app: ${NAME}
     name: ${NAME}-docker
@@ -26,7 +28,9 @@ objects:
       to:
         kind: ImageStreamTag
         name: "${NAME}:latest"
-    postCommit: {}
+    postCommit: 
+      command:
+      - /home/jenkins/test/run
     resources:
       requests:
         cpu: 100m
@@ -40,19 +44,25 @@ objects:
       git:
         uri: ${GIT_URI}
         ref: ${GIT_REF}
-      contextDir: '2'
+      contextDir: 'agent-nodejs'
     strategy:
       dockerStrategy:
         noCache: true
         forcePull: true
       type: Docker
-    triggers: []
+    triggers:
+    - type: imageChange
+      imageChange:
+        from:
+          kind: ImageStreamTag
+          name: "jenkins-agent-base:latest"
+          namespace: ${NAMESPACE}
 - apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
     labels:
       build: jenkins
-      image: '2'
+      image: agent-nodejs
       app: ${NAME}
     name: ${NAME}
   spec: {}
@@ -60,7 +70,7 @@ parameters:
 - description: The build name
   displayName: Build Name
   name: NAME
-  value: jenkins-custom
+  value: jenkins-agent-nodejs
 - description: The OpenShift Namespace where the Jenkins ImageStream resides.
   displayName: Jenkins ImageStream Namespace
   name: NAMESPACE

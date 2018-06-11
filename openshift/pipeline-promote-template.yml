@@ -64,15 +64,15 @@ objects:
             def project = openshift.project()
             echo "Configure $type jenkins slave $slave in project $project"
             def cfg = (type == 'persistent' ? 
-              openshift.process(readFile("slave-${slave}/openshift/slave-config-${type}.yml"), 
-                '-p', "IMAGE=imagestreamtag:${project}/jenkins-slave-${slave}-centos7:latest", 
+              openshift.process(readFile("agent-${slave}/openshift/agent-config-${type}.yml"), 
+                '-p', "IMAGE=imagestreamtag:${project}/jenkins-agent-${slave}:latest", 
                 '-p', "VOLUME_CAPACITY=${options.get('volumeCapacity', '10Gi')}") : 
-              openshift.process(readFile("slave-${slave}/openshift/slave-config-${type}.yml"), 
-                '-p', "IMAGE=imagestreamtag:${project}/jenkins-slave-${slave}-centos7:latest"))
+              openshift.process(readFile("agent-${slave}/openshift/agent-config-${type}.yml"), 
+                '-p', "IMAGE=imagestreamtag:${project}/jenkins-agent-${slave}:latest"))
             openshift.apply(cfg)
 
-            echo "Promote $type jenkins slave from cicd-staging/jenkins-slave-${slave}-centos7:latest to $project/jenkins-slave-${slave}-centos7:latest"
-            openshift.tag("cicd-staging/jenkins-slave-${slave}-centos7:latest", "$project/jenkins-slave-${slave}-centos7:latest")
+            echo "Promote $type jenkins slave from cicd-staging/jenkins-agent-${slave}:latest to $project/jenkins-agent-${slave}:latest"
+            openshift.tag("cicd-staging/jenkins-agent-${slave}:latest", "$project/jenkins-agent-${slave}:latest")
           }
 
           pipeline {

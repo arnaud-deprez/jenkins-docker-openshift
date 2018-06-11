@@ -1,0 +1,44 @@
+{{- if eq "openshift" .Values.Deployment.Type -}}
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+{{ include "jenkins-openshift.labels" . | indent 4 }}
+    build: jenkins
+  name: {{ template "jenkins-openshift.name" . }}-docker
+spec:
+  failedBuildsHistoryLimit: 1
+  successfulBuildsHistoryLimit: 1
+  output:
+    to:
+      kind: ImageStreamTag
+      name: "{{ regexSplit "/" .Values.Master.Image -1 | last }}:{{ .Values.Master.ImageTag }}"
+  postCommit: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+  runPolicy: Serial
+  source:
+    type: Git
+    git:
+      uri: {{ .Values.Master.Build.Git.Uri | quote }}
+      ref: {{ default "master" .Values.Master.Build.Git.Ref | quote }}
+    contextDir: {{ .Values.Master.Build.ContextDir | quote }}
+  strategy:
+    dockerStrategy:
+{{- if .Values.Master.Build.Env }}
+      env:
+{{- range $ekey, $eval := .Values.Master.Build.Env }}
+      - name: {{ $ekey | quote }}
+        value: {{ $eval | quote }}
+{{- end }}
+{{- end }}
+      noCache: true
+      forcePull: true
+    type: Docker
+  triggers: []
+{{- end }}

@@ -1,0 +1,55 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  labels:
+    template: jenkins-agent-base-template
+    role: jenkins-slave
+  name: jenkins-agent-base
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      role: jenkins-slave
+    name: jenkins-agent-base
+  data:
+    nodejs: |-
+      <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+        <inheritFrom></inheritFrom>
+        <name>base</name>
+        <instanceCap>10</instanceCap>
+        <idleMinutes>15</idleMinutes>
+        <label>base</label>
+        <serviceAccount>jenkins</serviceAccount>
+        <nodeSelector></nodeSelector>
+        <volumes/>
+        <containers>
+          <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+            <name>nodejs</name>
+            <image>${IMAGE}</image>
+            <privileged>false</privileged>
+            <alwaysPullImage>true</alwaysPullImage>
+            <workingDir>/tmp</workingDir>
+            <command></command>
+            <args>cat</args>
+            <ttyEnabled>true</ttyEnabled>
+            <resourceRequestCpu>400m</resourceRequestCpu>
+            <resourceRequestMemory>512Mi</resourceRequestMemory>
+            <resourceLimitCpu>1</resourceLimitCpu>
+            <resourceLimitMemory>1024Mi</resourceLimitMemory>
+            <envVars/>
+          </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+        </containers>
+        <envVars/>
+        <annotations/>
+        <imagePullSecrets/>
+        <nodeProperties/>
+      </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+parameters:
+- name: IMAGE
+  description: |-
+    Docker image reference of the node slave.
+    You can use imagestreamtag:<namespace>/<imagestream>:<tag> if you want to use
+    an imagestreamtag as a reference for this
+  required: true
+  value: "imagestreamtag:cicd/jenkins-agent-base:latest"

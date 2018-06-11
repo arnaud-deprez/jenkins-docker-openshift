@@ -1,0 +1,12 @@
+apiVersion: v1
+appVersion: "2"
+version: "0.0.1"
+name: jenkins-openshift
+home: https://github.com/arnaud-deprez/jenkins-docker-openshift
+icon: https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png
+description: Jenkins with Openshift
+maintainers:
+- name: Arnaud Deprez
+  email: arnaudeprez@gmail.com
+sources:
+- https://github.com/arnaud-deprez/jenkins-docker-openshift

@@ -1,0 +1,23 @@
+{{- if .Values.RBAC.Create -}}
+{{- $serviceName := default "default" .Values.RBAC.ServiceAccount.Name -}}
+apiVersion: v1
+kind: List
+items:
+{{- $root := . -}}
+{{- range $index, $pbindings := .Values.RBAC.RoleBindings }}
+- apiVersion: rbac.authorization.k8s.io/v1
+  kind: {{ default "RoleBinding" $pbindings.Kind }}
+  metadata:
+    labels:
+{{ include "jenkins-openshift.labels" $root | indent 6 }}
+    name: "{{ $serviceName }}_{{ $pbindings.Name }}"
+  roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: {{ default "ClusterRole" $pbindings.RoleKind }}
+    name: {{ $pbindings.Name }}
+  subjects:
+  - kind: ServiceAccount
+    name: {{ $serviceName }}
+    namespace: {{ $root.Release.Namespace }}
+{{- end }}
+{{- end }}

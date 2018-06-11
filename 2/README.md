@@ -33,13 +33,13 @@ Then run a container:
 docker run -d --name jenkins -p 8080:8080 -e JENKINS_PASSWORD=password -e OPENSHIFT_ENABLE_OAUTH=false jenkins-custom
 ```
 
-### With Openshift
+### With Openshift Templates
 
 Create a Jenkins S2I build with this GitHub repository:
 
 ```sh
-oc process -f openshift/build-template.yml -p NAME=jenkins-custom | oc apply -f -
-oc start-build jenkins-custom-docker
+oc process -f openshift/build-template.yml -p NAME=jenkins-openshift-docker | oc apply -f -
+oc start-build jenkins-openshift-docker
 ```
 
 Or alternatively:
@@ -48,8 +48,8 @@ Or alternatively:
 oc new-build https://github.com/arnaud-deprez/jenkins-openshift-docker.git \
     --strategy=docker \
     --image-stream=jenkins:2 \
-    --context-dir=2 --name=jenkins-custom
-oc patch bc jenkins-custom -p '{"spec": {"successfulBuildsHistoryLimit": 1, "failedBuildsHistoryLimit": 1}}'
+    --context-dir=2 --name=jenkins-openshift-docker
+oc patch bc jenkins-openshift-docker -p '{"spec": {"successfulBuildsHistoryLimit": 1, "failedBuildsHistoryLimit": 1}}'
 ```
 
 This will automatically trigger the build.
@@ -60,7 +60,7 @@ with the project where the above S2I build is created:
 ```sh
 oc process -f openshift/jenkins-persistent-template.yml \
     -p NAMESPACE=cicd \
-    -p JENKINS_IMAGE_STREAM_TAG=jenkins-custom:latest \
+    -p JENKINS_IMAGE_STREAM_TAG=jenkins-openshift:latest \
     -p MEMORY_LIMIT=2Gi \
     -p VOLUME_CAPACITY=5Gi | oc apply -f -
 ```
@@ -70,7 +70,7 @@ Or alternatively:
 ```sh
 oc new-app jenkins-persistent \
     -p NAMESPACE=cicd \
-    -p JENKINS_IMAGE_STREAM_TAG=jenkins-custom:latest \
+    -p JENKINS_IMAGE_STREAM_TAG=jenkins-openshift:latest \
     -p MEMORY_LIMIT=2Gi \
     -p VOLUME_CAPACITY=5Gi \
     -e OVERRIDE_PV_CONFIG_WITH_IMAGE_CONFIG=true \

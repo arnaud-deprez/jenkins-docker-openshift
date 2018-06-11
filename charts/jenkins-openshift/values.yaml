@@ -1,0 +1,242 @@
+#TODO: all values should start with lowercase https://github.com/kubernetes/helm/blob/master/docs/chart_best_practices/values.md
+Deployment:
+  Type: "openshift"
+
+RBAC:
+  Create: true
+  RoleBindings: 
+  - Name: "admin"
+  - Name: "self-provisioner"
+  ServiceAccount:
+    Create: true
+    Name: "jenkins"
+
+Master:
+  Name: jenkins-master
+  # Image: "jenkinsci/jenkins"
+  # ImageTag: "2.89"
+  Image: "172.30.1.1:5000/cicd/jenkins-openshift"
+  ImageTag: "latest"
+  ImagePullPolicy: "Always"
+  Component: "jenkins-master"
+  UseSecurity: true
+# AdminUser: admin
+# AdminPassword: <defaults to random>
+# AdminPassword: admin
+  Cpu: "200m"
+  Memory: "512Mi"
+# Set min/max heap here if needed with:
+# JavaOpts: "-Xms512m -Xmx512m"
+#    JavaOpts: >
+#      -Dhudson.slaves.NodeProvisioner.initialDelay=0
+#      -Dhudson.slaves.NodeProvisioner.MARGIN=50
+#      -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85
+#      -Djenkins.displayurl.provider=org.jenkinsci.plugins.blueoceandisplayurl.BlueOceanDisplayURLImpl
+# JenkinsOpts: ""
+# JenkinsUriPrefix: "/jenkins"
+  ServicePort: 8080
+# For minikube, set this to NodePort, elsewhere use LoadBalancer
+# Use ClusterIP if your setup includes ingress controller
+  ServiceType: ClusterIP
+# Master Service annotations
+  ServiceAnnotations: {}
+    #   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
+    # fabric8.io/expose: "true"
+# Used to create Ingress record (should used with ServiceType: ClusterIP)
+# HostName: jenkins.cluster.local
+# NodePort: <to set explicitly, choose port between 30000-32767
+  Env:
+    TILLER_NAMESPACE: tiller
+  ContainerPort: 8080
+  AgentListenerPort: 50000
+  NodeSelector: {}
+  Tolerations: {}
+  # Overwrite the base jenkins config and any plugins during upgrades
+  Overwrite:
+    Plugins: true
+    Config: true
+  # Health probes
+  HealthProbes:
+    Liveness: 
+      InitialDelay: 420
+      Timeout: 3
+      FailureThreshold: 30
+    Readiness: 
+      InitialDelay: 3
+      Timeout: 3
+      FailureThreshold: 5
+  Persistence:
+    Enabled: "true"
+    Size: "5Gi"
+    AccessMode: "ReadWriteOnce"
+  OAuth:
+    Enabled: "true"
+  Ingress:
+    Annotations:
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    TLS:
+      # - secretName: jenkins.cluster.local
+      #   hosts:
+      #     - jenkins.cluster.local
+  Build:
+    Git:
+      Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+    ContextDir: "2"
+
+Servers:
+  BitbucketCloud:
+  #- Name: myname
+  #  Url: https://something.com/
+  #  Credential: some-cred-name
+
+  BitbucketServer:
+  #- Name: myname
+  #  Url: https://something.com/
+  #  Credential: some-cred-name
+
+  GHE:
+  #- Name: myname
+  #  Url: https://something.com/
+  #  Credential: some-cred-name
+
+  Gitea:
+  #- Name: myname
+  #  Url: https://something.com/
+  #  Credential: some-cred-name
+
+  GitLab:
+  #- Name: myname
+  #  Url: https://something.com/
+  #  Credential: some-cred-name
+
+Agent:
+  Enabled: true
+  Component: "jenkins-agent"
+  ContainerCap: 0
+  # Key Value selectors. Ex:
+  # jenkins-agent: v1
+  PodTemplates:
+    Base:
+      Name: base
+      Label: base
+      Env:
+        _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
+        TILLER_NAMESPACE: tiller
+      ServiceAccount: jenkins
+      Containers:
+        Jnlp:
+          Image: "imagestreamtag:cicd/jenkins-agent-base"
+          ImageTag: "latest"
+          Resources:
+            RequestCpu: "400m"
+            RequestMemory: "192Mi"
+            LimitCpu: "1"
+            LimitMemory: "512Mi"
+          Args: '${computer.jnlpmac} ${computer.name}'
+          Build:
+            Git:
+              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            ContextDir: "agent-base"
+    Gradle:
+      Name: gradle
+      Label: gradle
+      Volumes:
+      - Type: PersistentVolumeClaim
+        ClaimName: "gradle-cache"
+        MountPath: /home/jenkins/.gradle/caches
+        Size: "5Gi"
+        AccessMode: "ReadWriteMany"
+      Env:
+        _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
+        TILLER_NAMESPACE: tiller
+        MAVEN_MIRROR_URL: "http://nexus3:8081/repository/maven-public"
+        MAVEN_PUBLISH_SNAPSHOT_URL: "http://nexus3:8081/repository/maven-snapshots"
+        MAVEN_PUBLISH_URL: "http://nexus3:8081/repository/maven-releases"
+        MAVEN_PUBLISH_USERNAME: "jenkins"
+        MAVEN_PUBLISH_PASSWORD: "jenkins"
+      ServiceAccount: jenkins
+      Containers:
+        Jnlp:
+          Image: "imagestreamtag:cicd/jenkins-agent-gradle"
+          ImageTag: "latest"
+          Resources:
+            RequestCpu: "400m"
+            RequestMemory: "512Mi"
+            LimitCpu: "1"
+            LimitMemory: "1024Mi"
+          Args: '${computer.jnlpmac} ${computer.name}'
+          Build:
+            Git:
+              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            ContextDir: "agent-gradle"
+            From:
+              Kind: ImageStreamTag
+              Name: "jenkins-agent-base"
+            Triggers:
+            - Type: ImageChange
+    Nodejs:
+      Name: nodejs
+      Label: nodejs
+      Env:
+        TILLER_NAMESPACE: tiller
+        CI: "true"
+        NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"
+        NPM_PUBLISH_URL: "http://nexus3:8081/repository/npm-releases/"
+        NPM_PUBLISH_TOKEN: "NpmToken.b5505337-ffb2-3fac-8b3a-fcd81b8bb8fb"
+      ServiceAccount: jenkins
+      Containers:
+        Jnlp:
+          Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
+          ImageTag: "latest"
+          Resources:
+            RequestCpu: "400m"
+            RequestMemory: "512Mi"
+            LimitCpu: "2"
+            LimitMemory: "2048Mi"
+          Args: '${computer.jnlpmac} ${computer.name}'
+          Build:
+            Git:
+              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            ContextDir: "agent-nodejs"
+            From:
+              Kind: ImageStreamTag
+              Name: "jenkins-agent-base"
+            Triggers:
+            - Type: ImageChange
+    GradleNodejs:
+      Name: gradle-nodejs
+      Label: gradle-nodejs
+      Env:
+        _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
+        TILLER_NAMESPACE: tiller
+        MAVEN_MIRROR_URL: "http://nexus3:8081/repository/maven-public"
+        MAVEN_PUBLISH_SNAPSHOT_URL: "http://nexus3:8081/repository/maven-snapshots"
+        MAVEN_PUBLISH_URL: "http://nexus3:8081/repository/maven-releases"
+        MAVEN_PUBLISH_USERNAME: "jenkins"
+        MAVEN_PUBLISH_PASSWORD: "jenkins"
+        CI: "true"
+        NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"
+        NPM_PUBLISH_URL: "http://nexus3:8081/repository/npm-releases/"
+        NPM_PUBLISH_TOKEN: "NpmToken.b5505337-ffb2-3fac-8b3a-fcd81b8bb8fb"
+      ServiceAccount: jenkins
+      Containers:
+        Jnlp:
+          Image: "imagestreamtag:cicd/jenkins-agent-gradle"
+          ImageTag: "latest"
+          Resources:
+            RequestCpu: "400m"
+            RequestMemory: "512Mi"
+            LimitCpu: "1"
+            LimitMemory: "1024Mi"
+          Args: '${computer.jnlpmac} ${computer.name}'
+        Nodejs:
+          Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
+          ImageTag: "latest"
+          Resources:
+            RequestCpu: "400m"
+            RequestMemory: "512Mi"
+            LimitCpu: "2"
+            LimitMemory: "2048Mi"
+          Args: "cat"
+          TtyEnabled: "true"

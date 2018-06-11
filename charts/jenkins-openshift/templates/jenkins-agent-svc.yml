@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "jenkins-openshift.fullname" . }}-agent
+  labels:
+{{ include "jenkins-openshift.labels" . | indent 4 }}
+{{- if .Values.Master.SlaveListenerServiceAnnotations }}
+  annotations:
+{{ toYaml .Values.Master.SlaveListenerServiceAnnotations | indent 4 }}
+{{- end }}
+spec:
+  ports:
+    - port: {{ .Values.Master.AgentListenerPort }}
+      targetPort: {{ .Values.Master.AgentListenerPort }}
+      name: slavelistener
+  selector:
+    component: "{{ .Release.Name }}-{{ .Values.Master.Component }}"
+  type: {{ .Values.Master.SlaveListenerServiceType }}

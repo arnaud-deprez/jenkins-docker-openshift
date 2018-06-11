@@ -4,8 +4,8 @@ metadata:
   labels:
     build: jenkins
     strategy: pipeline
-    app: jenkins-slave-test
-  name: "slave-test-pipeline"
+    app: jenkins-agent-test
+  name: "agent-test-pipeline"
 spec:
   strategy:
     jenkinsPipelineStrategy:

@@ -3,17 +3,51 @@
 This repository contains jenkins docker images to run on openshift.
 This has been tested on an Openshift cluster and this is based on official Openshift jenkins based image.
 
-## Jenkins master
+## Setup
+
+### With Helm (recommended)
+
+[Helm](https://docs.helm.sh) (aka The package manager for Kubernetes) is the recommended way to setup the `cicd` infrastructure and so `jenkins`.
+To install `helm cli` and `tiller` on `Openshift`, please follow the guideline [here](https://github.com/arnaud-deprez/cicd-openshift/blob/master/README.md).
+
+Once it is done, you can run the following: 
+
+```sh
+namespace=cicd
+oc new-project $namespace
+helm install --name jenkins --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" charts/jenkins-openshift
+oc start-build jenkins-openshift-docker
+oc start-build jenkins-agent-base
+```
+
+---
+**NOTE:**
+> To avoid openshift to auto provision the default jenkins, you must a service called `jenkins`.
+> That's why we use `fullnameOverride` property.
+> More information here https://docs.openshift.org/latest/install_config/configuring_pipeline_execution.html
+---
+
+For example, with `minishift` you can setup the hostname with:
+
+```sh
+helm install --name jenkins --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" charts/jenkins-openshift
+```
+
+### With Openshift Templates
+
+#### Jenkins master
 
 The jenkins master image is based on the official [openshift/jenkins](https://github.com/openshift/jenkins) image.
 For more information and how to run it in Openshift, follow [this guide](2/README.md).
 
-## Jenkins slave images
+#### Jenkins slave images
 
 Here is the current list of images for the jenkins slaves (follow the links to see how to use it):
 
-* [jenkins-slave-gradle](slave-gradle/README.md)
-* [jenkins-slave-nodejs](slave-nodejs/README.md)
+* [jenkins-agent-base](agent-base/README.md)
+* [jenkins-agent-gradle](agent-gradle/README.md)
+* [jenkins-agent-nodejs](agent-nodejs/README.md)
+* [jenkins-agent-gradle-nodejs](agent-gradle-nodejs/README.md)
 
 ## Jenkins pipeline self promotion
 
@@ -46,7 +80,7 @@ Here are the steps:
 * Checkout https://github.com/arnaud-deprez/jenkins-docker-openshift.git at `BRANCH_NAME` parameter.
 * This pipeline promotes this new jenkins version with its slaves into `cicd` environment. The promotion consist of tagging the image from `cicd-staging` to `cicd` and apply the changes in the various configurations.
 
-### Setup
+### Setup jenkins to allow self promotion
 
 ```sh
 oc new-project cicd
