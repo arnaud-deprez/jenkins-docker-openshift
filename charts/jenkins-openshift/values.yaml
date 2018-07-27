@@ -16,7 +16,7 @@ Master:
   # Image: "jenkinsci/jenkins"
   # ImageTag: "2.89"
   Image: "172.30.1.1:5000/cicd/jenkins-openshift"
-  ImageTag: "latest"
+  ImageTag: "v3.9"
   ImagePullPolicy: "Always"
   Component: "jenkins-master"
   UseSecurity: true
@@ -127,7 +127,7 @@ Agent:
       Containers:
         Jnlp:
           Image: "imagestreamtag:cicd/jenkins-agent-base"
-          ImageTag: "latest"
+          ImageTag: "v3.9"
           Resources:
             RequestCpu: "400m"
             RequestMemory: "192Mi"
@@ -159,7 +159,7 @@ Agent:
       Containers:
         Jnlp:
           Image: "imagestreamtag:cicd/jenkins-agent-gradle"
-          ImageTag: "latest"
+          ImageTag: "v3.9"
           Resources:
             RequestCpu: "400m"
             RequestMemory: "512Mi"
@@ -188,7 +188,7 @@ Agent:
       Containers:
         Jnlp:
           Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
-          ImageTag: "latest"
+          ImageTag: "v3.9"
           Resources:
             RequestCpu: "400m"
             RequestMemory: "512Mi"
@@ -223,7 +223,7 @@ Agent:
       Containers:
         Jnlp:
           Image: "imagestreamtag:cicd/jenkins-agent-gradle"
-          ImageTag: "latest"
+          ImageTag: "v3.9"
           Resources:
             RequestCpu: "400m"
             RequestMemory: "512Mi"
@@ -232,7 +232,7 @@ Agent:
           Args: '${computer.jnlpmac} ${computer.name}'
         Nodejs:
           Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
-          ImageTag: "latest"
+          ImageTag: "v3.9"
           Resources:
             RequestCpu: "400m"
             RequestMemory: "512Mi"
