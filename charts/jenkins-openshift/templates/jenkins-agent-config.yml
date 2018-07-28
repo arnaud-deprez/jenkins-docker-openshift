@@ -44,7 +44,7 @@ data:
 {{- range $ckey, $cval := $pval.Containers }}
         <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
           <name>{{ default "jnlp" $cval.Name | lower }}</name>
-          <image>{{ $cval.Image }}:{{ default "latest" $pval.ImageTag }}</image>
+          <image>{{ $cval.Image }}:{{ default "latest" $cval.ImageTag }}</image>
           <privileged>{{ default false $cval.Privileged }}</privileged>
           <alwaysPullImage>{{ default true $cval.AlwaysPullImage }}</alwaysPullImage>
           <workingDir>/tmp</workingDir>

@@ -15,7 +15,7 @@ Once it is done, you can run the following:
 ```sh
 namespace=cicd
 oc new-project $namespace
-helm install --name jenkins --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" charts/jenkins-openshift
+helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" jenkins charts/jenkins-openshift
 oc start-build jenkins-openshift-docker
 oc start-build jenkins-agent-base
 ```
@@ -30,7 +30,7 @@ oc start-build jenkins-agent-base
 For example, with `minishift` you can setup the hostname with:
 
 ```sh
-helm install --name jenkins --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" charts/jenkins-openshift
+helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" jenkins charts/jenkins-openshift
 ```
 
 ### With Openshift Templates

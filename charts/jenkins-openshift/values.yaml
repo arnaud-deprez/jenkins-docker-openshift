@@ -173,6 +173,7 @@ Agent:
             From:
               Kind: ImageStreamTag
               Name: "jenkins-agent-base"
+              Tag: "v3.9"
             Triggers:
             - Type: ImageChange
     Nodejs:
@@ -202,6 +203,7 @@ Agent:
             From:
               Kind: ImageStreamTag
               Name: "jenkins-agent-base"
+              Tag: "v3.9"
             Triggers:
             - Type: ImageChange
     GradleNodejs:
