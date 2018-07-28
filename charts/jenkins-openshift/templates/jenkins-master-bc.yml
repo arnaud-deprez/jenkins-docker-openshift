@@ -39,6 +39,9 @@ spec:
 {{- end }}
       noCache: true
       forcePull: true
+      {{- if .Values.Deployment.OS }}
+      dockerfilePath: Dockerfile.{{ .Values.Deployment.OS }}
+      {{- end }}
     type: Docker
   triggers: []
 {{- end }}

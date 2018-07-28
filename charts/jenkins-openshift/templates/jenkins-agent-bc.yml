@@ -52,6 +52,9 @@ items:
         {{- end }}
         noCache: true
         forcePull: true
+        {{- if $root.Values.Deployment.OS }}
+        dockerfilePath: "Dockerfile.{{ $root.Values.Deployment.OS }}"
+        {{- end }}
       type: Docker
     triggers: {{ if not $cval.Build.Triggers }}[]{{- else -}}
     {{- range $index, $trigger := $cval.Build.Triggers }}

@@ -23,7 +23,10 @@ these sources.
 ### Build the slave in openshift
 
 ```sh
+# Centos
 oc process -f openshift/build-template.yml -p NAME=jenkins-agent-gradle | oc apply -f -
+# Rhel
+oc process -f openshift/build-template.yml -p NAME=jenkins-agent-gradle -p DOCKERFILE_PATH=Dockerfile.rhel | oc apply -f -
 oc start-build jenkins-agent-gradle-docker
 ```
 

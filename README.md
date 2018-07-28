@@ -1,11 +1,16 @@
 # Jenkins docker images repository
 
 This repository contains jenkins docker images to run on openshift.
-This has been tested on an Openshift cluster and this is based on official Openshift jenkins based image.
+This has been tested on an Openshift cluster and it initially is based on official Openshift jenkins based image.
+Currently, it supports `Centos` and `Rhel` based images.
 
-## Setup
+Compare to the official [Openshift images](https://github.com/openshift/jenkins), these images does not use [Software Collections](https://developers.redhat.com/products/softwarecollections/overview/).
+It gives us the flexibility to combine jenkins agent images to the same pod template like it is done in [jenkins agent gradle nodejs](./agent-gradle-nodejs/README.md).
+See [this issue](https://github.com/openshift/jenkins/issues/582) for more details about this topic.
 
-### With Helm (recommended)
+It has also the intent to use latest tools that are not yet supported by RedHat.
+
+## Setup With Helm (recommended)
 
 [Helm](https://docs.helm.sh) (aka The package manager for Kubernetes) is the recommended way to setup the `cicd` infrastructure and so `jenkins`.
 To install `helm cli` and `tiller` on `Openshift`, please follow the guideline [here](https://github.com/arnaud-deprez/cicd-openshift/blob/master/README.md).
@@ -15,7 +20,9 @@ Once it is done, you can run the following:
 ```sh
 namespace=cicd
 oc new-project $namespace
+# install objects
 helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" jenkins charts/jenkins-openshift
+# trigger builds
 oc start-build jenkins-openshift-docker
 oc start-build jenkins-agent-base
 ```
@@ -30,17 +37,23 @@ oc start-build jenkins-agent-base
 For example, with `minishift` you can setup the hostname with:
 
 ```sh
+# centos images
 helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" jenkins charts/jenkins-openshift
+# rhel images
+helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" --set Deployment.OS=rhel jenkins charts/jenkins-openshift
+# trigger builds
+oc start-build jenkins-openshift-docker
+oc start-build jenkins-agent-base
 ```
 
-### With Openshift Templates
+## Setup with Openshift Templates
 
-#### Jenkins master
+### Jenkins master
 
 The jenkins master image is based on the official [openshift/jenkins](https://github.com/openshift/jenkins) image.
 For more information and how to run it in Openshift, follow [this guide](2/README.md).
 
-#### Jenkins slave images
+### Jenkins slave images
 
 Here is the current list of images for the jenkins slaves (follow the links to see how to use it):
 
@@ -49,7 +62,7 @@ Here is the current list of images for the jenkins slaves (follow the links to s
 * [jenkins-agent-nodejs](agent-nodejs/README.md)
 * [jenkins-agent-gradle-nodejs](agent-gradle-nodejs/README.md)
 
-## Jenkins pipeline self promotion
+## Setup through Jenkins pipeline self promotion
 
 If you have successfully followed the guides above, you probably realise that it's a lot of manual interventions.
 While this is completely fine to quickly bootstrap a CI/CD infrastructure for testing or so, in real life, this infrastructure will probably evolve a lot.

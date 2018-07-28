@@ -10,11 +10,12 @@ So all the [official documentation](https://github.com/openshift/jenkins) remain
 
 This jenkins master image contains Blue Ocean plugin among [other useful plugins](plugins.txt).
 
-## How to use this image ?
+## How to use this image
 
 ### With docker
 
-This image can be built via: 
+This image can be built via:
+
 * regular docker build:
 
 ```sh
@@ -27,7 +28,7 @@ docker build -t jenkins-custom ./2
 s2i build https://github.com/arnaud-deprez/jenkins-openshift-docker openshift/jenkins-2-centos7:latest jenkins-custom --context-dir=./2
 ```
 
-Then run a container: 
+Then run a container:
 
 ```sh
 docker run -d --name jenkins -p 8080:8080 -e JENKINS_PASSWORD=password -e OPENSHIFT_ENABLE_OAUTH=false jenkins-custom
@@ -38,7 +39,10 @@ docker run -d --name jenkins -p 8080:8080 -e JENKINS_PASSWORD=password -e OPENSH
 Create a Jenkins S2I build with this GitHub repository:
 
 ```sh
+# Centos
 oc process -f openshift/build-template.yml -p NAME=jenkins-openshift-docker | oc apply -f -
+# Rhel
+oc process -f openshift/build-template.yml -p NAME=jenkins-openshift-docker -p DOCKERFILE_PATH=Dockerfile.rhel | oc apply -f -
 oc start-build jenkins-openshift-docker
 ```
 
@@ -71,8 +75,8 @@ Or alternatively:
 oc new-app jenkins-persistent \
     -p NAMESPACE=cicd \
     -p JENKINS_IMAGE_STREAM_TAG=jenkins-openshift:latest \
-    -p MEMORY_LIMIT=2Gi \
-    -p VOLUME_CAPACITY=5Gi \
+    -p MEMORY_LIMIT=1Gi \
+    -p VOLUME_CAPACITY=2Gi \
     -e OVERRIDE_PV_CONFIG_WITH_IMAGE_CONFIG=true \
     -e OVERRIDE_PV_PLUGINS_WITH_IMAGE_PLUGINS=true
 # Optional:

@@ -49,6 +49,7 @@ objects:
       dockerStrategy:
         noCache: true
         forcePull: true
+        dockerfilePath: ${DOCKERFILE_PATH}
       type: Docker
     triggers: []
 - apiVersion: image.openshift.io/v1
@@ -77,3 +78,6 @@ parameters:
   displayName: Git ref
   name: GIT_REF
   value: master
+- displayName: Dockerfile path
+  name: DOCKERFILE_PATH
+  value: Dockerfile
