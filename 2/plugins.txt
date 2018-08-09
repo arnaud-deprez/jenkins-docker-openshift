@@ -1,4 +1,4 @@
-blueocean:1.4.2
+blueocean:1.5.1
 pipeline-utility-steps:2.0.1
 job-dsl:1.70
 jobConfigHistory:2.18
