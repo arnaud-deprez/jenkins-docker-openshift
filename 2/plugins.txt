@@ -1,7 +1,8 @@
-blueocean:1.5.1
+blueocean:1.5.2
 pipeline-utility-steps:2.0.1
 job-dsl:1.70
 jobConfigHistory:2.18
 throttle-concurrents:2.0.1
 build-monitor-plugin:1.12+build.201805070054
 timestamper:1.8.10
+dependency-check-jenkins-plugin:3.3.1
