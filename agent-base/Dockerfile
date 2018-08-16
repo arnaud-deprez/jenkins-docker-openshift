@@ -1,4 +1,4 @@
-FROM openshift/jenkins-slave-base-centos7:v3.9
+FROM openshift/jenkins-slave-base-centos7:v3.10
 
 LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 
