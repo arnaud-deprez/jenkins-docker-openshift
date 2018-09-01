@@ -148,7 +148,8 @@ Agent:
         Size: "5Gi"
         AccessMode: "ReadWriteMany"
       Env:
-        _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
+        _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx512m'
+        GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=2'
         TILLER_NAMESPACE: tiller
         MAVEN_MIRROR_URL: "http://nexus3:8081/repository/maven-public"
         MAVEN_PUBLISH_SNAPSHOT_URL: "http://nexus3:8081/repository/maven-snapshots"
@@ -163,8 +164,8 @@ Agent:
           Resources:
             RequestCpu: "400m"
             RequestMemory: "512Mi"
-            LimitCpu: "1"
-            LimitMemory: "1024Mi"
+            LimitCpu: "2"
+            LimitMemory: "2048Mi"
           Args: '${computer.jnlpmac} ${computer.name}'
           Build:
             Git:
