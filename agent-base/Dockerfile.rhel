@@ -6,4 +6,10 @@ LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 ENV HELM_VERSION 2.10.0
 RUN curl https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz  | tar xzv && \
   mv linux-amd64/helm /usr/bin/ && \
+  chmod a+x /usr/bin/helm && \
   rm -rf linux-amd64
+
+RUN chown -R 1001:0 $HOME && \
+    chmod -R g+rw $HOME
+
+USER 1001

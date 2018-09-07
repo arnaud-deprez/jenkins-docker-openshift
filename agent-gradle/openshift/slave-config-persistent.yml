@@ -28,7 +28,7 @@ objects:
   data:
     gradle: |-
       <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
-        <inheritFrom></inheritFrom>
+        <inheritFrom>jnlp</inheritFrom>
         <name>gradle</name>
         <instanceCap>10</instanceCap>
         <idleMinutes>15</idleMinutes>
@@ -44,51 +44,51 @@ objects:
         </volumes>
         <containers>
           <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
-            <name>jnlp</name>
+            <name>gradle</name>
             <image>${IMAGE}</image>
             <privileged>false</privileged>
             <alwaysPullImage>true</alwaysPullImage>
             <workingDir>/tmp</workingDir>
-            <command></command>
-            <args>${computer.jnlpmac} ${computer.name}</args>
-            <ttyEnabled>false</ttyEnabled>
+            <command/>
+            <args>cat</args>
+            <ttyEnabled>true</ttyEnabled>
             <resourceRequestCpu>400m</resourceRequestCpu>
             <resourceRequestMemory>512Mi</resourceRequestMemory>
             <resourceLimitCpu>2</resourceLimitCpu>
             <resourceLimitMemory>2048Mi</resourceLimitMemory>
-            <envVars/>
+            <envVars>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>_JAVA_OPTIONS</key>
+                <value>-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xmx512m</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>GRADLE_OPTS</key>
+                <value>-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>MAVEN_MIRROR_URL</key>
+                <value>${MAVEN_MIRROR_URL}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>MAVEN_PUBLISH_SNAPSHOT_URL</key>
+                <value>${MAVEN_PUBLISH_SNAPSHOT_URL}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>MAVEN_PUBLISH_URL</key>
+                <value>${MAVEN_PUBLISH_URL}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>MAVEN_PUBLISH_USERNAME</key>
+                <value>${MAVEN_PUBLISH_USERNAME}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>MAVEN_PUBLISH_PASSWORD</key>
+                <value>${MAVEN_PUBLISH_PASSWORD}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            </envVars>
           </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
         </containers>
-        <envVars>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>_JAVA_OPTIONS</key>
-            <value>-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xmx512m</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>GRADLE_OPTS</key>
-            <value>-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=2</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>MAVEN_MIRROR_URL</key>
-            <value>${MAVEN_MIRROR_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>MAVEN_PUBLISH_SNAPSHOT_URL</key>
-            <value>${MAVEN_PUBLISH_SNAPSHOT_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>MAVEN_PUBLISH_URL</key>
-            <value>${MAVEN_PUBLISH_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>MAVEN_PUBLISH_USERNAME</key>
-            <value>${MAVEN_PUBLISH_USERNAME}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>MAVEN_PUBLISH_PASSWORD</key>
-            <value>${MAVEN_PUBLISH_PASSWORD}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-        </envVars>
+        <envVars/>
         <annotations/>
         <imagePullSecrets/>
         <nodeProperties/>

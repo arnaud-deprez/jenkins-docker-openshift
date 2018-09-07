@@ -38,11 +38,12 @@ For example, with `minishift` you can setup the hostname with:
 
 ```sh
 # centos images
-helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" jenkins charts/jenkins-openshift
+helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" jenkins charts/jenkins-openshift --namespace cicd
 # rhel images
-helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" --set Deployment.OS=rhel jenkins charts/jenkins-openshift
+helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" --set Deployment.OS=rhel jenkins charts/jenkins-openshift --namespace cicd
 # trigger builds
 oc start-build jenkins-openshift-docker
+oc start-build jenkins-jnlp
 oc start-build jenkins-agent-base
 ```
 

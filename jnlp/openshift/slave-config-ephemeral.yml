@@ -2,41 +2,41 @@ apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   labels:
-    template: jenkins-agent-base-template
-    role: jenkins-slave
-  name: jenkins-agent-base
+    template: jenkins-jnlp-template
+    role: jenkins-jnlp
+  name: jenkins-jnlp
 objects:
 - apiVersion: v1
   kind: ConfigMap
   metadata:
     labels:
-      role: jenkins-slave
-    name: jenkins-agent-base
+      role: jenkins-jnlp
+    name: jenkins-jnlp
   data:
-    base: |-
+    jnlp: |-
       <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
-        <inheritFrom>jnlp</inheritFrom>
-        <name>base</name>
+        <inheritFrom></inheritFrom>
+        <name>jnlp</name>
         <instanceCap>10</instanceCap>
         <idleMinutes>15</idleMinutes>
-        <label>base</label>
+        <label>jnlp</label>
         <serviceAccount>jenkins</serviceAccount>
         <nodeSelector></nodeSelector>
         <volumes/>
         <containers>
           <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
-            <name>base</name>
+            <name>jnlp</name>
             <image>${IMAGE}</image>
             <privileged>false</privileged>
             <alwaysPullImage>true</alwaysPullImage>
             <workingDir>/tmp</workingDir>
-            <command/>
-            <args>cat</args>
-            <ttyEnabled>true</ttyEnabled>
+            <command></command>
+            <args>${computer.jnlpmac} ${computer.name}</args>
+            <ttyEnabled>false</ttyEnabled>
             <resourceRequestCpu>100m</resourceRequestCpu>
             <resourceRequestMemory>128Mi</resourceRequestMemory>
-            <resourceLimitCpu>1</resourceLimitCpu>
-            <resourceLimitMemory>256Mi</resourceLimitMemory>
+            <resourceLimitCpu/>
+            <resourceLimitMemory/>
             <envVars/>
           </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
         </containers>
@@ -48,8 +48,8 @@ objects:
 parameters:
 - name: IMAGE
   description: |-
-    Docker image reference of the node slave.
+    Docker image reference of the jnlp agent.
     You can use imagestreamtag:<namespace>/<imagestream>:<tag> if you want to use
     an imagestreamtag as a reference for this
   required: true
-  value: "imagestreamtag:cicd/jenkins-agent-base:latest"
+  value: "imagestreamtag:cicd/jenkins-jnlp:latest"

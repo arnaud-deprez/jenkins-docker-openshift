@@ -10,7 +10,7 @@ data:
 {{- range $pkey, $pval := .Values.Agent.PodTemplates }}
   {{ $pval.Name }}: |-
     <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
-      <inheritFrom></inheritFrom>
+      <inheritFrom>{{ default "" $pval.InheritFrom }}</inheritFrom>
       <name>{{ $pval.Name }}</name>
       <instanceCap>10</instanceCap>
       <idleMinutes>15</idleMinutes>
@@ -49,13 +49,20 @@ data:
           <alwaysPullImage>{{ default true $cval.AlwaysPullImage }}</alwaysPullImage>
           <workingDir>/tmp</workingDir>
           <command>{{ $cval.Command }}</command>
-          <args>{{ default "${computer.jnlpmac} ${computer.name}" $cval.Command }}</args>
+          <args>{{ default "${computer.jnlpmac} ${computer.name}" $cval.Args }}</args>
           <ttyEnabled>{{ default false $cval.TtyEnabled }}</ttyEnabled>
           <resourceRequestCpu>{{ $cval.Resources.RequestCpu }}</resourceRequestCpu>
           <resourceRequestMemory>{{ $cval.Resources.RequestMemory }}</resourceRequestMemory>
           <resourceLimitCpu>{{ default "" $cval.Resources.LimitCpu }}</resourceLimitCpu>
           <resourceLimitMemory>{{ default "" $cval.Resources.LimitMemory }}</resourceLimitMemory>
-          <envVars/>
+          <envVars>
+          {{- range $cekey, $ceval := $cval.Env }}
+            <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <key>{{ $cekey }}</key>
+              <value>{{ $ceval }}</value>
+            </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+          {{- end }}
+          </envVars>
         </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
 {{- end }}
       </containers>

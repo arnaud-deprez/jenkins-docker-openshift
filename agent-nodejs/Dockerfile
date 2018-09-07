@@ -5,6 +5,8 @@ MAINTAINER Arnaud Deprez<arnaudeprez@gmail.com>
 ENV NPM_CONFIG_PREFIX=$HOME/.npm-global \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH
 
+USER root
+
 ENV NODE_VERSION 8.11.1
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - && \

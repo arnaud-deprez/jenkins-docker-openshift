@@ -16,7 +16,7 @@ Master:
   # Image: "jenkinsci/jenkins"
   # ImageTag: "2.89"
   Image: "172.30.1.1:5000/cicd/jenkins-openshift"
-  ImageTag: "v3.9"
+  ImageTag: "v3.10"
   ImagePullPolicy: "Always"
   Component: "jenkins-master"
   UseSecurity: true
@@ -117,23 +117,43 @@ Agent:
   # Key Value selectors. Ex:
   # jenkins-agent: v1
   PodTemplates:
+    Jnlp:
+      Name: jnlp
+      Label: jnlp
+      Containers:
+        Jnlp:
+          Image: "imagestreamtag:cicd/jenkins-jnlp"
+          ImageTag: "v3.10"
+          Resources:
+            RequestCpu: "100m"
+            RequestMemory: "128Mi"
+          Args: '${computer.jnlpmac} ${computer.name}'
+          Env:
+            _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
+          Build:
+            Git:
+              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            ContextDir: "jnlp"
     Base:
       Name: base
       Label: base
-      Env:
-        _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
-        TILLER_NAMESPACE: tiller
       ServiceAccount: jenkins
+      InheritFrom: "jnlp"
       Containers:
-        Jnlp:
+        Base:
+          Name: base
           Image: "imagestreamtag:cicd/jenkins-agent-base"
-          ImageTag: "v3.9"
+          ImageTag: "v3.10"
+          Env:
+            _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
+            TILLER_NAMESPACE: tiller
           Resources:
-            RequestCpu: "400m"
+            RequestCpu: "100m"
             RequestMemory: "192Mi"
             LimitCpu: "1"
             LimitMemory: "512Mi"
-          Args: '${computer.jnlpmac} ${computer.name}'
+          Args: cat
+          TtyEnabled: true
           Build:
             Git:
               Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
@@ -141,32 +161,35 @@ Agent:
     Gradle:
       Name: gradle
       Label: gradle
+      InheritFrom: "jnlp"
       Volumes:
       - Type: PersistentVolumeClaim
         ClaimName: "gradle-cache"
         MountPath: /home/jenkins/.gradle/caches
         Size: "5Gi"
         AccessMode: "ReadWriteMany"
-      Env:
-        _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx512m'
-        GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=2'
-        TILLER_NAMESPACE: tiller
-        MAVEN_MIRROR_URL: "http://nexus3:8081/repository/maven-public"
-        MAVEN_PUBLISH_SNAPSHOT_URL: "http://nexus3:8081/repository/maven-snapshots"
-        MAVEN_PUBLISH_URL: "http://nexus3:8081/repository/maven-releases"
-        MAVEN_PUBLISH_USERNAME: "jenkins"
-        MAVEN_PUBLISH_PASSWORD: "jenkins"
       ServiceAccount: jenkins
       Containers:
-        Jnlp:
+        Gradle:
+          Name: gradle
           Image: "imagestreamtag:cicd/jenkins-agent-gradle"
-          ImageTag: "v3.9"
+          ImageTag: "v3.10"
+          Env:
+            _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx512m'
+            GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1'
+            TILLER_NAMESPACE: tiller
+            MAVEN_MIRROR_URL: "http://nexus3:8081/repository/maven-public"
+            MAVEN_PUBLISH_SNAPSHOT_URL: "http://nexus3:8081/repository/maven-snapshots"
+            MAVEN_PUBLISH_URL: "http://nexus3:8081/repository/maven-releases"
+            MAVEN_PUBLISH_USERNAME: "jenkins"
+            MAVEN_PUBLISH_PASSWORD: "jenkins"
           Resources:
             RequestCpu: "400m"
             RequestMemory: "512Mi"
             LimitCpu: "2"
             LimitMemory: "2048Mi"
-          Args: '${computer.jnlpmac} ${computer.name}'
+          Args: cat
+          TtyEnabled: true
           Build:
             Git:
               Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
@@ -174,29 +197,32 @@ Agent:
             From:
               Kind: ImageStreamTag
               Name: "jenkins-agent-base"
-              Tag: "v3.9"
+              Tag: "v3.10"
             Triggers:
             - Type: ImageChange
     Nodejs:
       Name: nodejs
       Label: nodejs
-      Env:
-        TILLER_NAMESPACE: tiller
-        CI: "true"
-        NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"
-        NPM_PUBLISH_URL: "http://nexus3:8081/repository/npm-releases/"
-        NPM_PUBLISH_TOKEN: "NpmToken.b5505337-ffb2-3fac-8b3a-fcd81b8bb8fb"
+      InheritFrom: jnlp
       ServiceAccount: jenkins
       Containers:
-        Jnlp:
+        Nodejs:
+          Name: nodejs
           Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
-          ImageTag: "v3.9"
+          ImageTag: "v3.10"
+          Env:
+            TILLER_NAMESPACE: tiller
+            CI: "true"
+            NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"
+            NPM_PUBLISH_URL: "http://nexus3:8081/repository/npm-releases/"
+            NPM_PUBLISH_TOKEN: "NpmToken.b5505337-ffb2-3fac-8b3a-fcd81b8bb8fb"
           Resources:
             RequestCpu: "400m"
             RequestMemory: "512Mi"
             LimitCpu: "2"
             LimitMemory: "2048Mi"
-          Args: '${computer.jnlpmac} ${computer.name}'
+          Args: cat
+          TtyEnabled: true
           Build:
             Git:
               Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
@@ -204,42 +230,11 @@ Agent:
             From:
               Kind: ImageStreamTag
               Name: "jenkins-agent-base"
-              Tag: "v3.9"
+              Tag: "v3.10"
             Triggers:
             - Type: ImageChange
     GradleNodejs:
       Name: gradle-nodejs
       Label: gradle-nodejs
-      Env:
-        _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
-        TILLER_NAMESPACE: tiller
-        MAVEN_MIRROR_URL: "http://nexus3:8081/repository/maven-public"
-        MAVEN_PUBLISH_SNAPSHOT_URL: "http://nexus3:8081/repository/maven-snapshots"
-        MAVEN_PUBLISH_URL: "http://nexus3:8081/repository/maven-releases"
-        MAVEN_PUBLISH_USERNAME: "jenkins"
-        MAVEN_PUBLISH_PASSWORD: "jenkins"
-        CI: "true"
-        NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"
-        NPM_PUBLISH_URL: "http://nexus3:8081/repository/npm-releases/"
-        NPM_PUBLISH_TOKEN: "NpmToken.b5505337-ffb2-3fac-8b3a-fcd81b8bb8fb"
+      InheritFrom: "gradle nodejs"
       ServiceAccount: jenkins
-      Containers:
-        Jnlp:
-          Image: "imagestreamtag:cicd/jenkins-agent-gradle"
-          ImageTag: "v3.9"
-          Resources:
-            RequestCpu: "400m"
-            RequestMemory: "512Mi"
-            LimitCpu: "1"
-            LimitMemory: "1024Mi"
-          Args: '${computer.jnlpmac} ${computer.name}'
-        Nodejs:
-          Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
-          ImageTag: "v3.9"
-          Resources:
-            RequestCpu: "400m"
-            RequestMemory: "512Mi"
-            LimitCpu: "2"
-            LimitMemory: "2048Mi"
-          Args: "cat"
-          TtyEnabled: "true"

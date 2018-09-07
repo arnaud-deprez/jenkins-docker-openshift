@@ -1,0 +1,8 @@
+FROM registry.access.redhat.com/openshift3/jenkins-slave-base-rhel7:v3.10
+
+LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
+
+RUN chown -R 1001:0 $HOME && \
+    chmod -R g+rw $HOME
+
+USER 1001

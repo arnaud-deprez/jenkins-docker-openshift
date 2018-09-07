@@ -15,7 +15,7 @@ objects:
   data:
     nodejs: |-
       <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
-        <inheritFrom></inheritFrom>
+        <inheritFrom>jnlp</inheritFrom>
         <name>nodejs</name>
         <instanceCap>10</instanceCap>
         <idleMinutes>15</idleMinutes>
@@ -25,39 +25,39 @@ objects:
         <volumes/>
         <containers>
           <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
-            <name>jnlp</name>
+            <name>nodejs</name>
             <image>${IMAGE}</image>
             <privileged>false</privileged>
             <alwaysPullImage>true</alwaysPullImage>
             <workingDir>/tmp</workingDir>
-            <command></command>
-            <args>${computer.jnlpmac} ${computer.name}</args>
-            <ttyEnabled>false</ttyEnabled>
+            <command/>
+            <args>cat</args>
+            <ttyEnabled>true</ttyEnabled>
             <resourceRequestCpu>400m</resourceRequestCpu>
             <resourceRequestMemory>512Mi</resourceRequestMemory>
             <resourceLimitCpu>2</resourceLimitCpu>
             <resourceLimitMemory>2048Mi</resourceLimitMemory>
-            <envVars/>
+            <envVars>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>CI</key>
+                <value>true</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>NPM_MIRROR_URL</key>
+                <value>${NPM_MIRROR_URL}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>NPM_PUBLISH_URL</key>
+                <value>${NPM_PUBLISH_URL}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>NPM_PUBLISH_TOKEN</key>
+                <value>${NPM_PUBLISH_TOKEN}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            </envVars>
           </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
         </containers>
-        <envVars>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>CI</key>
-            <value>true</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>NPM_MIRROR_URL</key>
-            <value>${NPM_MIRROR_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>NPM_PUBLISH_URL</key>
-            <value>${NPM_PUBLISH_URL}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-          <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-            <key>NPM_PUBLISH_TOKEN</key>
-            <value>${NPM_PUBLISH_TOKEN}</value>
-          </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-        </envVars>
+        <envVars/>
         <annotations/>
         <imagePullSecrets/>
         <nodeProperties/>
