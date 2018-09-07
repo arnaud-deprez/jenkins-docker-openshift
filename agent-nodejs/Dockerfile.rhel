@@ -1,4 +1,5 @@
-FROM arnaudeprez/jenkins-slave-base:latest
+ARG FROM_IMAGE=arnaudeprez/jenkins-slave-base:latest
+FROM ${FROM_IMAGE}
 
 MAINTAINER Arnaud Deprez<arnaudeprez@gmail.com>
 

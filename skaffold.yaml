@@ -1,0 +1,43 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.DOCKER_REGISTRY}}/cicd/{{.IMAGE_NAME}}:{{.VERSION}}"
+  artifacts:
+  - imageName: "jenkins-openshift"
+    workspace: 2
+    docker: {}
+  - imageName: "jenkins-agent-base"
+    workspace: agent-base
+    docker: {}
+  # This may not work as build might run in parallel. Wait for https://github.com/GoogleContainerTools/skaffold/issues/889
+  - imageName: "jenkins-agent-gradle"
+    workspace: agent-gradle
+    docker: 
+      buildArgs:
+        # TODO: adapt when they fix it https://github.com/GoogleContainerTools/skaffold/issues/543
+        # FROM_IMAGE: "{{.DOCKER_REGISTRY}}/cicd/jenkins-agent-base:{{.VERSION}}"
+  - imageName: "jenkins-agent-nodejs"
+    workspace: agent-nodejs
+    docker: 
+      buildArgs:
+        # TODO: adapt when they fix it https://github.com/GoogleContainerTools/skaffold/issues/543
+        # FROM_IMAGE: "{{.DOCKER_REGISTRY}}/cicd/jenkins-agent-base:{{.VERSION}}"
+  local: {}
+deploy:
+  helm:
+    releases:
+    - name: jenkins-openshift
+      chartPath: charts/jenkins-openshift
+      values:
+        fullnameOverride: jenkins
+        Deployment.Type: skaffold
+      setValueTemplates:
+        Master.HostName: "jenkins-cicd.{{.INGRESS_SUFFIX}}"
+profiles:
+- name: dev
+  build:
+    local: 
+      # apparently it is set to false when using minishift but true for minikube
+      skipPush: true
