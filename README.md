@@ -65,6 +65,14 @@ Here is the current list of images for the jenkins slaves (follow the links to s
 
 ## Setup through Jenkins pipeline self promotion
 
+---
+**NOTE:**
+> This part is not maintain anymore as I'm trying to use https://github.com/GoogleContainerTools/skaffold to simplify it.
+> However there are 2 opened issues that freeze the progression: 
+> - Use environment variables in buildArgs: https://github.com/GoogleContainerTools/skaffold/issues/543
+> - Dependent build: https://github.com/GoogleContainerTools/skaffold/issues/889
+---
+
 If you have successfully followed the guides above, you probably realise that it's a lot of manual interventions.
 While this is completely fine to quickly bootstrap a CI/CD infrastructure for testing or so, in real life, this infrastructure will probably evolve a lot.
 For example: you will upgrade plugins, install new one, add/update configuration and add/update slaves.
