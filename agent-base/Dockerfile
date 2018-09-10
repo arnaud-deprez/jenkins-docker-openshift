@@ -5,7 +5,7 @@ LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 ENV HOME=/home/jenkins
 
 RUN yum install -y epel-release && \
-    INSTALL_PKGS="bc gettext git lsof make python34-pip rsync tar unzip wget which zip bzip2" && \
+    INSTALL_PKGS="bc gettext git lsof make rsync tar unzip wget which zip bzip2" && \
     yum install -y $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum clean all && \

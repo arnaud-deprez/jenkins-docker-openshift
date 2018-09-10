@@ -10,13 +10,13 @@ USER root
 ENV NODE_VERSION=8.11.1 \
     YARN_VERSION=1.9.4
 
-RUN set -o errexit -o nounset && \
-    curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - && \
-    curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
+RUN curl -fsSL https://rpm.nodesource.com/setup_8.x | bash - && \
+    curl -fsSL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
     INSTALL_PKGS="nodejs-${NODE_VERSION} gcc-c++ make yarn-${YARN_VERSION}" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
-    yum clean all -y
+    # rpm -V $INSTALL_PKGS && \
+    yum clean all -y && \
+    rm -rf /var/cache/yum/*
 
 ADD bin/* /usr/local/bin/
 ADD test $HOME/test

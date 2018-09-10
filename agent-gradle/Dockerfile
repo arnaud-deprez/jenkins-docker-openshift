@@ -8,11 +8,10 @@ ENV GRADLE_VERSION=4.6 \
 USER root
 
 ARG GRADLE_DOWNLOAD_SHA256=98bd5fd2b30e070517e03c51cbb32beee3e2ee1a84003a5a5d748996d4b1b915
-RUN set -o errexit -o nounset \
-    && INSTALL_PKGS="java-1.8.0-openjdk-devel.x86_64 java-1.8.0-openjdk-devel.i686" \
+RUN INSTALL_PKGS="java-1.8.0-openjdk-devel.x86_64 java-1.8.0-openjdk-devel.i686" \
     && yum install -y --enablerepo=centosplus $INSTALL_PKGS \
 	&& echo "Downloading Gradle" \
-	&& wget -O gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
+	&& curl -fsSL -o gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
 	\
 	&& echo "Checking download hash" \
 	&& echo "${GRADLE_DOWNLOAD_SHA256} *gradle.zip" | sha256sum -c - \
@@ -25,7 +24,8 @@ RUN set -o errexit -o nounset \
     && ln --symbolic "${GRADLE_HOME}/bin/gradle" /usr/bin/gradle \
     && mkdir -p $HOME/.gradle \
     && rpm -V $INSTALL_PKGS \
-    && yum clean all -y
+    && yum clean all -y \
+	&& rm -rf /var/cache/yum/*
 
 ADD home/* $HOME/
 ADD test $HOME/test
