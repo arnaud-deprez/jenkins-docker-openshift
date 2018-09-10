@@ -55,9 +55,8 @@ objects:
     - type: ImageChange
       imageChange:
         from:
-          kind: imageStreamTag
+          kind: ImageStreamTag
           name: "jenkins-agent-base:latest"
-          namespace: ${NAMESPACE}
 - apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:

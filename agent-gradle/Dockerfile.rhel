@@ -27,8 +27,8 @@ RUN set -o errexit -o nounset \
     && rpm -V $INSTALL_PKGS \
     && yum clean all -y
 
-ADD ./contrib/gradle/* $HOME/.gradle/
-ADD test $HOME/test/
+ADD home/* $HOME/
+ADD test $HOME/test
 
 RUN chown -R 1001:0 $HOME && \
     chmod -R g+rw $HOME

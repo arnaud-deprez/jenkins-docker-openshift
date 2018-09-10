@@ -6,3 +6,4 @@ throttle-concurrents:2.0.1
 build-monitor-plugin:1.12+build.201805070054
 timestamper:1.8.10
 dependency-check-jenkins-plugin:3.3.1
+ws-cleanup:0.34

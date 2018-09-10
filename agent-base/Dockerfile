@@ -2,6 +2,8 @@ FROM openshift/origin-cli:v3.10
 
 LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 
+ENV HOME=/home/jenkins
+
 RUN yum install -y epel-release && \
     INSTALL_PKGS="bc gettext git lsof make python34-pip rsync tar unzip wget which zip bzip2" && \
     yum install -y $INSTALL_PKGS && \
@@ -15,6 +17,10 @@ RUN yum install -y epel-release && \
     chmod 775 /usr/share/man/man1 && \
     chmod 775 /var/lib/origin
 
+ADD bin/* /usr/local/bin/
+
+RUN chmod -R 755 /usr/local/bin
+
 # helm
 ENV HELM_VERSION 2.10.0
 RUN curl https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz  | tar xzv && \
@@ -24,3 +30,5 @@ RUN curl https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-li
   rm -rf linux-amd64
 
 USER 1001
+
+ENTRYPOINT [ "/usr/local/bin/run" ]
