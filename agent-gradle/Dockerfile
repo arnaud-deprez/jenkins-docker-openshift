@@ -27,7 +27,7 @@ RUN INSTALL_PKGS="java-1.8.0-openjdk-devel.x86_64 java-1.8.0-openjdk-devel.i686"
     && yum clean all -y \
 	&& rm -rf /var/cache/yum/*
 
-ADD home/* $HOME/
+ADD gradle/ $GRADLE_HOME/
 ADD test $HOME/test
 
 RUN chown -R 1001:0 $HOME && \

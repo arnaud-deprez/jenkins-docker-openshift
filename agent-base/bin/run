@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
 
-source /usr/local/bin/configure-slave
+source /usr/local/bin/configure-agent
 
 exec $@

@@ -18,7 +18,7 @@ RUN curl -fsSL https://rpm.nodesource.com/setup_8.x | bash - && \
     yum clean all -y && \
     rm -rf /var/cache/yum/*
 
-ADD bin/* /usr/local/bin/
+ADD bin/ /usr/local/bin/
 ADD test $HOME/test
 
 RUN chown -R 1001:0 $HOME && \
