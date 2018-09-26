@@ -3,6 +3,7 @@ FROM openshift/origin-cli:v3.10
 LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 
 ENV HOME=/home/jenkins
+WORKDIR /tmp
 
 RUN yum install -y epel-release && \
     INSTALL_PKGS="bc gettext git lsof make rsync tar unzip wget which zip bzip2" && \
