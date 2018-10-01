@@ -1,4 +1,4 @@
-FROM arnaudeprez/jenkins-slave-base
+FROM arnaudeprez/jenkins-agent-base:latest
 
 LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 

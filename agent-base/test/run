@@ -1,0 +1,17 @@
+#!/bin/bash
+function checkResult {
+    local code=$1
+    if [ $code -ne 0 ]; then
+        echo "FAIL: $2"
+        exit 1
+    fi
+}
+
+git --version
+checkResult $? "git is not installed correctly!"
+
+make --version
+checkResult $? "make is not installed correctly!"
+
+helm version --client
+checkResult $? "Helm is not installed correctly!"

@@ -162,12 +162,6 @@ Agent:
       Name: gradle
       Label: gradle
       InheritFrom: "jnlp"
-      Volumes:
-      - Type: PersistentVolumeClaim
-        ClaimName: "gradle-cache"
-        MountPath: /home/jenkins/.gradle/caches
-        Size: "5Gi"
-        AccessMode: "ReadWriteMany"
       ServiceAccount: jenkins
       Containers:
         Gradle:
