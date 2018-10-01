@@ -1,4 +1,4 @@
-# Jenkins docker images repository
+# Jenkins docker images repository [![Build Status](https://travis-ci.org/arnaud-deprez/jenkins-docker-openshift.svg?branch=master)](https://travis-ci.org/arnaud-deprez/jenkins-docker-openshift)
 
 This repository contains jenkins docker images to run on openshift.
 This has been tested on an Openshift cluster and it initially is based on official Openshift jenkins based image.

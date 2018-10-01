@@ -19,8 +19,9 @@ RUN yum install -y epel-release && \
     chmod 775 /var/lib/origin
 
 ADD bin/ /usr/local/bin/
+ADD test $HOME/test
 
-RUN chmod -R 755 /usr/local/bin
+RUN chmod -R 755 /usr/local/bin $HOME/test
 
 # helm
 ENV HELM_VERSION 2.10.0

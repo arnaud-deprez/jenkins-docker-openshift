@@ -1,0 +1,27 @@
+sudo: required
+
+services:
+  - docker
+
+stages:
+  - "build base"
+  - "build agents"
+
+jobs:
+  include:
+    - stage: "build base"
+      name: "master"
+      script: make -C 2 publish
+    - stage: "build base"
+      name: "jnlp agent"
+      script: make -C jnlp publish
+    - stage: "build base"
+      name: "base agent"
+      script: make -C agent-base publish
+    
+    - stage: "build agents"
+      name: "gradle agent"
+      script: make -C agent-gradle publish
+    - stage: "build agents"
+      name: "nodejs agent"
+      script: make -C agent-nodejs publish

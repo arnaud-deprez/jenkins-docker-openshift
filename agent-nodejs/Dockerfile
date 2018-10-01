@@ -1,4 +1,4 @@
-FROM arnaudeprez/jenkins-slave-base:latest
+FROM arnaudeprez/jenkins-agent-base:latest
 
 MAINTAINER Arnaud Deprez<arnaudeprez@gmail.com>
 

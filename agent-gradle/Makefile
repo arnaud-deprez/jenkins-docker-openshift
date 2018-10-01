@@ -1,4 +1,4 @@
-IMAGE_NAME = arnaudeprez/jenkins-openshift:latest
+IMAGE_NAME = arnaudeprez/jenkins-agent-gradle:latest
 
 .PHONY: build
 build:
@@ -6,7 +6,7 @@ build:
 
 .PHONY: test
 test: build
-	#IMAGE_NAME=$(IMAGE_NAME) test/run
+	docker run --rm $(IMAGE_NAME) /home/jenkins/test/run
 
 .PHONY: publish
 publish: build test

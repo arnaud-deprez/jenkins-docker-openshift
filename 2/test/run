@@ -19,7 +19,7 @@
 set -o pipefail
 IFS=$'\n\t'
 
-IMAGE_NAME=${IMAGE_NAME-arnaudeprez/jenkins-2-centos7-candidate:latest}
+IMAGE_NAME=${IMAGE_NAME-arnaudeprez/jenkins-openshift:latest}
 DOCKER_SOCKET=/var/run/docker.sock
 
 if [ ! -e "${DOCKER_SOCKET}" ]; then
@@ -28,6 +28,6 @@ if [ ! -e "${DOCKER_SOCKET}" ]; then
 fi
 
 # More info here: https://www.testcontainers.org/usage/inside_docker.html
-GRADLE_PROJECT_DIR="$PWD/test/testcontainer"
-echo "Execute tests of in $GRADLE_PROJECT_DIR"
-docker run --rm -ti -v $GRADLE_PROJECT_DIR:$GRADLE_PROJECT_DIR -v $DOCKER_SOCKET:$DOCKER_SOCKET -w $GRADLE_PROJECT_DIR --user root gradle:4.6.0-jdk8-alpine gradle test -Pimage.name=$IMAGE_NAME --stacktrace
+MAVEN_PROJECT_DIR="$PWD/test/integration-tests"
+echo "Execute tests of in $MAVEN_PROJECT_DIR"
+docker run --rm -ti -v $MAVEN_PROJECT_DIR:/usr/src/integration-tests -v $DOCKER_SOCKET:$DOCKER_SOCKET -w /usr/src/integration-tests --user root maven:3-jdk-8-alpine mvn -e test -Dimage.name=$IMAGE_NAME
