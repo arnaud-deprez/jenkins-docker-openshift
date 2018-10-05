@@ -20,7 +20,7 @@ objects:
       slave: nodejs
       strategy: docker
       app: ${NAME}
-    name: ${NAME}-docker
+    name: ${NAME}
   spec:
     failedBuildsHistoryLimit: 1
     successfulBuildsHistoryLimit: 1

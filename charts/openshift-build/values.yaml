@@ -1,0 +1,61 @@
+Images:
+  OS: ""
+
+Master:
+  Image: "172.30.1.1:5000/cicd/jenkins-openshift"
+  ImageTag: "v3.10"
+  Build:
+    Git:
+      Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+    ContextDir: "2"
+Agent:
+  Enabled: true
+  PodTemplates:
+    Jnlp:
+      Containers:
+        Jnlp:
+          Image: "imagestreamtag:cicd/jenkins-jnlp"
+          ImageTag: "v3.10"
+          Build:
+            Git:
+              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            ContextDir: "jnlp"
+    Base:
+      Containers:
+        Base:
+          Image: "imagestreamtag:cicd/jenkins-agent-base"
+          ImageTag: "v3.10"
+          Build:
+            Git:
+              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            ContextDir: "agent-base"
+    Gradle:
+      Containers:
+        Gradle:
+          Image: "imagestreamtag:cicd/jenkins-agent-gradle"
+          ImageTag: "v3.10"
+          Build:
+            Git:
+              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            ContextDir: "agent-gradle"
+            From:
+              Kind: ImageStreamTag
+              Name: "jenkins-agent-base"
+              Tag: "v3.10"
+            Triggers:
+            - Type: ImageChange
+    Nodejs:
+      Containers:
+        Nodejs:
+          Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
+          ImageTag: "v3.10"
+          Build:
+            Git:
+              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            ContextDir: "agent-nodejs"
+            From:
+              Kind: ImageStreamTag
+              Name: "jenkins-agent-base"
+              Tag: "v3.10"
+            Triggers:
+            - Type: ImageChange

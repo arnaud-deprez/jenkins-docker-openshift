@@ -1,4 +1,3 @@
-{{- if eq "openshift" .Values.Deployment.Type -}}
 apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
@@ -7,4 +6,3 @@ metadata:
     build: jenkins
   name: {{ regexSplit "/" .Values.Master.Image -1 | last}}
 spec: {}
-{{- end }}

@@ -17,7 +17,8 @@ spec:
       nodePort: {{ .Values.Master.NodePort }}
       {{- end }}
   selector:
-    component: "{{ .Release.Name }}-{{ .Values.Master.Component }}"
+    app: {{ template "jenkins-openshift.name" . }}
+    release: {{ .Release.Name }}
   type: {{ .Values.Master.ServiceType }}
   {{- if eq .Values.Master.ServiceType "LoadBalancer"}}
   loadBalancerSourceRanges: {{ .Values.Master.LoadBalancerSourceRanges }}

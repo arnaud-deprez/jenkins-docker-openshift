@@ -15,16 +15,27 @@ It has also the intent to use latest tools that are not yet supported by RedHat.
 [Helm](https://docs.helm.sh) (aka The package manager for Kubernetes) is the recommended way to setup the `cicd` infrastructure and so `jenkins`.
 To install `helm cli` and `tiller` on `Openshift`, please follow the guideline [here](https://github.com/arnaud-deprez/cicd-openshift/blob/master/README.md).
 
-Once it is done, you can run the following: 
+Once it is done, you can run the pre-built images based on centos and directly available from docker.io: 
+
+```sh
+helm template --name jenkins --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" charts/jenkins-openshift | oc apply -f -
+```
+
+Or build the image in openshift: 
 
 ```sh
 namespace=cicd
 oc new-project $namespace
-# install objects
-helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" jenkins charts/jenkins-openshift
+# configure builds for centos base images
+helm template --name jenkins-openshift --set nameOverride=jenkins-openshift charts/openshift-build | oc apply -f -
+# or configure builds for rhel base images
+helm template --name jenkins-openshift --set nameOverride=jenkins-openshift --set Images.OS=rhel charts/openshift-build | oc apply -f -
 # trigger builds
-oc start-build jenkins-openshift-docker
+oc start-build jenkins-openshift
+oc start-build jenkins-jnlp
 oc start-build jenkins-agent-base
+# deploy
+helm template --name jenkins -f charts/openshift-build/values.yaml --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" charts/jenkins-openshift | oc apply -f -
 ```
 
 ---
@@ -37,14 +48,7 @@ oc start-build jenkins-agent-base
 For example, with `minishift` you can setup the hostname with:
 
 ```sh
-# centos images
-helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" jenkins charts/jenkins-openshift --namespace cicd
-# rhel images
-helm upgrade --install --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" --set Deployment.OS=rhel jenkins charts/jenkins-openshift --namespace cicd
-# trigger builds
-oc start-build jenkins-openshift-docker
-oc start-build jenkins-jnlp
-oc start-build jenkins-agent-base
+helm template --name jenkins --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" charts/jenkins-openshift | oc apply -f -
 ```
 
 ## Setup with Openshift Templates

@@ -79,10 +79,6 @@ Master:
       # - secretName: jenkins.cluster.local
       #   hosts:
       #     - jenkins.cluster.local
-  Build:
-    Git:
-      Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-    ContextDir: "2"
 
 Servers:
   BitbucketCloud:
@@ -130,10 +126,6 @@ Agent:
           Args: '${computer.jnlpmac} ${computer.name}'
           Env:
             _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
-          Build:
-            Git:
-              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-            ContextDir: "jnlp"
     Base:
       Name: base
       Label: base
@@ -154,10 +146,6 @@ Agent:
             LimitMemory: "512Mi"
           Args: cat
           TtyEnabled: true
-          Build:
-            Git:
-              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-            ContextDir: "agent-base"
     Gradle:
       Name: gradle
       Label: gradle
@@ -184,16 +172,6 @@ Agent:
             LimitMemory: "2048Mi"
           Args: cat
           TtyEnabled: true
-          Build:
-            Git:
-              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-            ContextDir: "agent-gradle"
-            From:
-              Kind: ImageStreamTag
-              Name: "jenkins-agent-base"
-              Tag: "v3.10"
-            Triggers:
-            - Type: ImageChange
     Nodejs:
       Name: nodejs
       Label: nodejs
@@ -205,7 +183,6 @@ Agent:
           Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
           ImageTag: "v3.10"
           Env:
-            TILLER_NAMESPACE: tiller
             CI: "true"
             NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"
             NPM_PUBLISH_URL: "http://nexus3:8081/repository/npm-releases/"
@@ -217,16 +194,6 @@ Agent:
             LimitMemory: "2048Mi"
           Args: cat
           TtyEnabled: true
-          Build:
-            Git:
-              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-            ContextDir: "agent-nodejs"
-            From:
-              Kind: ImageStreamTag
-              Name: "jenkins-agent-base"
-              Tag: "v3.10"
-            Triggers:
-            - Type: ImageChange
     GradleNodejs:
       Name: gradle-nodejs
       Label: gradle-nodejs

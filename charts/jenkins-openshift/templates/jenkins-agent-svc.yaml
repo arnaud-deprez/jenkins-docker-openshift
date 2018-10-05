@@ -14,5 +14,6 @@ spec:
       targetPort: {{ .Values.Master.AgentListenerPort }}
       name: slavelistener
   selector:
-    component: "{{ .Release.Name }}-{{ .Values.Master.Component }}"
+    app: {{ template "jenkins-openshift.name" . }}
+    release: {{ .Release.Name }}
   type: {{ .Values.Master.SlaveListenerServiceType }}

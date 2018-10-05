@@ -34,9 +34,7 @@ Create chart name and version as used by the chart label.
 {{/*  Manage the labels for each entity  */}}
 {{- define "jenkins-openshift.labels" -}}
 app: {{ template "jenkins-openshift.name" . }}
-fullname: {{ template "jenkins-openshift.fullname" . }}
 chart: {{ template "jenkins-openshift.chart" . }}
 release: {{ .Release.Name }}
 heritage: {{ .Release.Service }}
-component: "{{ .Release.Name }}-{{ .Values.Master.Component }}"
 {{- end -}}

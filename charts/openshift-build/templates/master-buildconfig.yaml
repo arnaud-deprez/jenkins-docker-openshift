@@ -1,11 +1,10 @@
-{{- if eq "openshift" .Values.Deployment.Type -}}
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   labels:
 {{ include "jenkins-openshift.labels" . | indent 4 }}
     build: jenkins
-  name: {{ template "jenkins-openshift.name" . }}-docker
+  name: {{ template "jenkins-openshift.name" . }}
 spec:
   failedBuildsHistoryLimit: 1
   successfulBuildsHistoryLimit: 1
@@ -39,9 +38,8 @@ spec:
 {{- end }}
       noCache: true
       forcePull: true
-      {{- if .Values.Deployment.OS }}
-      dockerfilePath: Dockerfile.{{ .Values.Deployment.OS }}
+      {{- if .Values.Images.OS }}
+      dockerfilePath: Dockerfile.{{ .Values.Images.OS }}
       {{- end }}
     type: Docker
   triggers: []
-{{- end }}

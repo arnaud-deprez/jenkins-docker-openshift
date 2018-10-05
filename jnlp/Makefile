@@ -4,6 +4,11 @@ IMAGE_NAME = arnaudeprez/jenkins-openshift-jnlp:latest
 build:
 	docker build -t $(IMAGE_NAME) .
 
-publish: build
+.PHONY: test
+test: build
+
+
+.PHONY: publish
+publish: build test
 	echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
 	docker push $(IMAGE_NAME)

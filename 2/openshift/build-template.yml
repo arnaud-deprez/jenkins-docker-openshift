@@ -18,7 +18,7 @@ objects:
       image: '2'
       strategy: docker
       app: ${NAME}
-    name: ${NAME}-docker
+    name: ${NAME}
   spec:
     failedBuildsHistoryLimit: 1
     successfulBuildsHistoryLimit: 1
@@ -61,7 +61,7 @@ parameters:
 - description: The build name
   displayName: Build Name
   name: NAME
-  value: jenkins-custom
+  value: jenkins-openshift
 - description: The OpenShift Namespace where the Jenkins ImageStream resides.
   displayName: Jenkins ImageStream Namespace
   name: NAMESPACE

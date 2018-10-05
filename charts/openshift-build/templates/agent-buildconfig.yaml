@@ -1,10 +1,10 @@
-{{- if and (.Values.Agent.Enabled) (eq "openshift" .Values.Deployment.Type) -}}
+{{- if and (.Values.Agent.Enabled) -}}
 apiVersion: v1
 kind: List
 items:
 {{- $root := . -}}
 {{- range $pkey, $pval := .Values.Agent.PodTemplates -}}
-{{- range $index, $cval := $pval.Containers -}}
+{{- range $ckey, $cval := $pval.Containers -}}
 {{- if $cval.Build }}
 - apiVersion: build.openshift.io/v1
   kind: BuildConfig
@@ -12,7 +12,7 @@ items:
     labels:
 {{ include "jenkins-openshift.labels" $root | indent 6 }}
       build: jenkins
-      image: {{ $pval.Name | quote }}
+      image: {{ $ckey | lower | quote }}
     name: {{ regexSplit "/" $cval.Image -1 | last}}
   spec:
     failedBuildsHistoryLimit: 1
@@ -52,8 +52,8 @@ items:
         {{- end }}
         noCache: true
         forcePull: true
-        {{- if $root.Values.Deployment.OS }}
-        dockerfilePath: "Dockerfile.{{ $root.Values.Deployment.OS }}"
+        {{- if $root.Values.Images.OS }}
+        dockerfilePath: "Dockerfile.{{ $root.Values.Images.OS }}"
         {{- end }}
       type: Docker
     triggers: {{ if not $cval.Build.Triggers }}[]{{- else -}}

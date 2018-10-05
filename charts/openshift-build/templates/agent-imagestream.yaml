@@ -1,4 +1,4 @@
-{{- if and (.Values.Agent.Enabled) (eq "openshift" .Values.Deployment.Type) -}}
+{{- if and (.Values.Agent.Enabled) -}}
 apiVersion: v1
 kind: List
 items:

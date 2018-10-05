@@ -6,3 +6,4 @@ build
 out
 target
 gitignore
+!charts/build

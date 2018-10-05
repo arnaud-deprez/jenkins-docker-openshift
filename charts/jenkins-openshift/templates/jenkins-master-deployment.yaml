@@ -10,7 +10,8 @@ spec:
     type: "RollingUpdate"
   selector:
     matchLabels:
-      component: "{{ .Release.Name }}-{{ .Values.Master.Component }}"
+      app: {{ template "jenkins-openshift.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
