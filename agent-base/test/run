@@ -15,3 +15,6 @@ checkResult $? "make is not installed correctly!"
 
 helm version --client
 checkResult $? "Helm is not installed correctly!"
+
+helm push --help
+checkResult $? "Helm push plugin is not installed correctly!"

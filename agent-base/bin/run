@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+if [[ -n "$CHARTMUSEUM_SERVICE_HOST" ]]; then
+    helm repo add "local" "http://$CHARTMUSEUM_SERVICE_HOST:$CHARTMUSEUM_SERVICE_PORT_HTTP"
+fi
+
 source /usr/local/bin/configure-agent
 
 exec $@

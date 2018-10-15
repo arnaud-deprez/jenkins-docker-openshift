@@ -29,6 +29,8 @@ RUN curl https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-li
   mv linux-amd64/helm /usr/bin/ && \
   chown -R 1001:0 /usr/bin && \
   chmod -R g+w /usr/bin && \
+  helm init --client-only && \
+  helm plugin install https://github.com/chartmuseum/helm-push && \
   rm -rf linux-amd64
 
 USER 1001
