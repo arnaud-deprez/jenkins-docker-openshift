@@ -37,4 +37,8 @@ app: {{ template "jenkins-openshift.name" . }}
 chart: {{ template "jenkins-openshift.chart" . }}
 release: {{ .Release.Name }}
 heritage: {{ .Release.Service }}
+app.kubernetes.io/name: {{ include "jenkins-openshift.name" . }}
+helm.sh/chart: {{ include "jenkins-openshift.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}

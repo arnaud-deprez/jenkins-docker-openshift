@@ -17,8 +17,8 @@ spec:
       nodePort: {{ .Values.Master.NodePort }}
       {{- end }}
   selector:
-    app: {{ template "jenkins-openshift.name" . }}
-    release: {{ .Release.Name }}
+    app.kubernetes.io/name: {{ include "jenkins-openshift.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.Master.ServiceType }}
   {{- if eq .Values.Master.ServiceType "LoadBalancer"}}
   loadBalancerSourceRanges: {{ .Values.Master.LoadBalancerSourceRanges }}
