@@ -1,9 +1,15 @@
 #!/bin/bash
 set -e
 
-if [[ -n "$CHARTMUSEUM_SERVICE_HOST" ]]; then
-    helm repo add "local" "http://$CHARTMUSEUM_SERVICE_HOST:$CHARTMUSEUM_SERVICE_PORT_HTTP"
+# ensure there is a chartmuseum instance running in the same namespace
+if [ $(curl -sL -o /dev/null -w "%{http_code}" "$CHARTMUSEUM_URL") -eq 200 ]; then
+    if [ -n $CHARTMUSEUM_USERNAME ] && [ -n $CHARTMUSEUM_PASSWORD ]; then
+        helm repo add --username $CHARTMUSEUM_USERNAME --password $CHARTMUSEUM_PASSWORD "local" "$CHARTMUSEUM_URL"
+    else
+        helm repo add "local" "$CHARTMUSEUM_URL"
+    if
 fi
+helm repo update
 
 source /usr/local/bin/configure-agent
 

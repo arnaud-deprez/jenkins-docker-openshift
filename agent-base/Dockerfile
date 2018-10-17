@@ -24,7 +24,8 @@ ADD test $HOME/test
 RUN chmod -R 755 /usr/local/bin $HOME/test
 
 # helm
-ENV HELM_VERSION 2.10.0
+ENV HELM_VERSION=2.11.0 \
+    HELM_HOME=$HOME/.helm
 RUN curl https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz  | tar xzv && \
   mv linux-amd64/helm /usr/bin/ && \
   chown -R 1001:0 /usr/bin && \

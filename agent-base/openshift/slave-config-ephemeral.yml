@@ -37,7 +37,20 @@ objects:
             <resourceRequestMemory>128Mi</resourceRequestMemory>
             <resourceLimitCpu>1</resourceLimitCpu>
             <resourceLimitMemory>256Mi</resourceLimitMemory>
-            <envVars/>
+            <envVars>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>CHARTMUSEUM_URL</key>
+                <value>${CHARTMUSEUM_URL}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>CHARTMUSEUM_USERNAME</key>
+                <value>${CHARTMUSEUM_USERNAME}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+              <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+                <key>CHARTMUSEUM_PASSWORD</key>
+                <value>${CHARTMUSEUM_PASSWORD}</value>
+              </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
+            </envVars>
           </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
         </containers>
         <envVars/>
@@ -53,3 +66,12 @@ parameters:
     an imagestreamtag as a reference for this
   required: true
   value: "imagestreamtag:cicd/jenkins-agent-base:latest"
+- name: CHARTMUSEUM_URL
+  description: "chartmuseum url"
+  value: "http://chartmuseum:8080"
+- name: CHARTMUSEUM_USERNAME
+  description: "chartmuseum username used to publish charts on $CHARTMUSEUM_URL"
+  value: "admin"
+- name: CHARTMUSEUM_PASSWORD
+  description: "chartmuseum password used to publish charts on $CHARTMUSEUM_URL"
+  value: "admin"
