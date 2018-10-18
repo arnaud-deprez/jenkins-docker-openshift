@@ -7,7 +7,7 @@ if [ $(curl -sL -o /dev/null -w "%{http_code}" "$CHARTMUSEUM_URL") -eq 200 ]; th
         helm repo add --username $CHARTMUSEUM_USERNAME --password $CHARTMUSEUM_PASSWORD "local" "$CHARTMUSEUM_URL"
     else
         helm repo add "local" "$CHARTMUSEUM_URL"
-    if
+    fi
 fi
 helm repo update
 
