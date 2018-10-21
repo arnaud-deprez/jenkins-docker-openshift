@@ -16,7 +16,7 @@ Master:
   # Image: "jenkinsci/jenkins"
   # ImageTag: "2.89"
   Image: "172.30.1.1:5000/cicd/jenkins-openshift"
-  ImageTag: "v3.10"
+  ImageTag: "v3.11"
   ImagePullPolicy: "Always"
   Component: "jenkins-master"
   UseSecurity: true
@@ -119,7 +119,7 @@ Agent:
       Containers:
         Jnlp:
           Image: "imagestreamtag:cicd/jenkins-jnlp"
-          ImageTag: "v3.10"
+          ImageTag: "v3.11"
           Resources:
             RequestCpu: "100m"
             RequestMemory: "128Mi"
@@ -135,7 +135,7 @@ Agent:
         Base:
           Name: base
           Image: "imagestreamtag:cicd/jenkins-agent-base"
-          ImageTag: "v3.10"
+          ImageTag: "v3.11"
           Env:
             CHARTMUSEUM_URL: http://chartmuseum:8080
             CHARTMUSEUM_USERNAME: admin
@@ -156,7 +156,7 @@ Agent:
         Gradle:
           Name: gradle
           Image: "imagestreamtag:cicd/jenkins-agent-gradle"
-          ImageTag: "v3.10"
+          ImageTag: "v3.11"
           Env:
             _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx512m'
             GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1'
@@ -185,7 +185,7 @@ Agent:
         Nodejs:
           Name: nodejs
           Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
-          ImageTag: "v3.10"
+          ImageTag: "v3.11"
           Env:
             CI: "true"
             NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"

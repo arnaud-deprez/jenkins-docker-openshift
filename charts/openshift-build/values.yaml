@@ -3,7 +3,7 @@ Images:
 
 Master:
   Image: "172.30.1.1:5000/cicd/jenkins-openshift"
-  ImageTag: "v3.10"
+  ImageTag: "v3.11"
   Build:
     Git:
       Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
@@ -15,7 +15,7 @@ Agent:
       Containers:
         Jnlp:
           Image: "imagestreamtag:cicd/jenkins-jnlp"
-          ImageTag: "v3.10"
+          ImageTag: "v3.11"
           Build:
             Git:
               Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
@@ -24,7 +24,7 @@ Agent:
       Containers:
         Base:
           Image: "imagestreamtag:cicd/jenkins-agent-base"
-          ImageTag: "v3.10"
+          ImageTag: "v3.11"
           Build:
             Git:
               Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
@@ -33,7 +33,7 @@ Agent:
       Containers:
         Gradle:
           Image: "imagestreamtag:cicd/jenkins-agent-gradle"
-          ImageTag: "v3.10"
+          ImageTag: "v3.11"
           Build:
             Git:
               Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
@@ -41,14 +41,14 @@ Agent:
             From:
               Kind: ImageStreamTag
               Name: "jenkins-agent-base"
-              Tag: "v3.10"
+              Tag: "v3.11"
             Triggers:
             - Type: ImageChange
     Nodejs:
       Containers:
         Nodejs:
           Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
-          ImageTag: "v3.10"
+          ImageTag: "v3.11"
           Build:
             Git:
               Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
@@ -56,6 +56,6 @@ Agent:
             From:
               Kind: ImageStreamTag
               Name: "jenkins-agent-base"
-              Tag: "v3.10"
+              Tag: "v3.11"
             Triggers:
             - Type: ImageChange

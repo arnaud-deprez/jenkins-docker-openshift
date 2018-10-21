@@ -1,4 +1,4 @@
-FROM openshift/origin-cli:v3.10
+FROM openshift/origin-cli:v3.11
 
 LABEL maintainer="Arnaud Deprez <arnaudeprez@gmail.com>"
 

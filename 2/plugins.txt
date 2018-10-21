@@ -1,9 +1,11 @@
-blueocean:1.6.2
-pipeline-utility-steps:2.0.1
+# Jenkins version: 2.121.3
+
+blueocean:1.9.0
+pipeline-utility-steps:2.1.0
 job-dsl:1.70
-jobConfigHistory:2.18
+jobConfigHistory:2.18.2
 throttle-concurrents:2.0.1
-build-monitor-plugin:1.12+build.201805070054
+build-monitor-plugin:1.12+build.201809061734
 timestamper:1.8.10
-dependency-check-jenkins-plugin:3.3.1
-ws-cleanup:0.34
+dependency-check-jenkins-plugin:3.3.2
+ws-cleanup:0.36
