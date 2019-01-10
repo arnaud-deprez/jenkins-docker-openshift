@@ -24,7 +24,7 @@ ADD test $HOME/test
 RUN chmod -R 755 /usr/local/bin $HOME/test
 
 # helm
-ENV HELM_VERSION=2.11.0 \
+ENV HELM_VERSION=2.12.1 \
     HELM_HOME=$HOME/.helm
 RUN curl https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz  | tar xzv && \
   mv linux-amd64/helm /usr/bin/ && \
@@ -32,6 +32,8 @@ RUN curl https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-li
   chmod -R g+w /usr/bin && \
   helm init --client-only && \
   helm plugin install https://github.com/chartmuseum/helm-push && \
+  chown -R 1001:0 /home/jenkins && \
+  chmod -R g+w /home/jenkins && \
   rm -rf linux-amd64
 
 USER 1001

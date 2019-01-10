@@ -7,10 +7,10 @@ ENV NPM_CONFIG_PREFIX=$HOME/.npm-global \
 
 USER root
 
-ENV NODE_VERSION=8.11.1 \
-    YARN_VERSION=1.9.4
+ENV NODE_VERSION=10.15.0 \
+    YARN_VERSION=1.12.3
 
-RUN curl -fsSL https://rpm.nodesource.com/setup_8.x | bash - && \
+RUN curl -fsSL https://rpm.nodesource.com/setup_10.x | bash - && \
     curl -fsSL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \
     INSTALL_PKGS="nodejs-${NODE_VERSION} gcc-c++ make yarn-${YARN_VERSION}" && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
