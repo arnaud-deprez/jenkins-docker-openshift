@@ -2,19 +2,19 @@
 apiVersion: v1
 kind: List
 items:
-{{- $root := . -}}
-{{- range $pkey, $pval := .Values.Agent.PodTemplates -}}
-{{- range $index, $cval := $pval.Containers -}}
-{{- if $cval.Build }}
-- apiVersion: image.openshift.io/v1
-  kind: ImageStream
-  metadata:
-    labels:
-{{ include "jenkins-openshift.labels" $root | indent 6 }}
-      build: jenkins
-    name: {{ regexSplit "/" $cval.Image -1 | last | quote }}
-  spec: {}
-{{- end }}
-{{- end }}
-{{- end }}
+  {{- $root := . -}}
+  {{- range $pkey, $pval := .Values.Agent.PodTemplates -}}
+  {{- range $index, $cval := $pval.Containers -}}
+  {{- if $cval.Build }}
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      labels:
+        {{ include "jenkins-openshift.labels" $root | nindent 8 | trim }}
+        build: jenkins
+      name: {{ regexSplit "/" $cval.Image -1 | last | quote }}
+    spec: {}
+  {{- end }}
+  {{- end }}
+  {{- end }}
 {{- end }}

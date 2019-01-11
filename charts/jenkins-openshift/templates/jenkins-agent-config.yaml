@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-{{ include "jenkins-openshift.labels" . | indent 4 }}
+    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
     role: jenkins-slave
   name: jenkins-agent-template
 data:
@@ -15,16 +15,16 @@ data:
       <instanceCap>10</instanceCap>
       <idleMinutes>15</idleMinutes>
       <label>{{ $pval.Label }}</label>
-{{- if $pval.ServiceAccount }}
+      {{- if $pval.ServiceAccount }}
       <serviceAccount>{{ $pval.ServiceAccount }}</serviceAccount>
-{{- end }}
+      {{- end }}
       <nodeSelector>
-{{- range $key, $value := $pval.NodeSelector }}
+      {{- range $key, $value := $pval.NodeSelector }}
         {{- $key }}: {{ $value }}
-{{- end }}
+      {{- end }}
       </nodeSelector>
       <volumes>
-{{- range $index, $pvolume := $pval.Volumes }}
+      {{- range $index, $pvolume := $pval.Volumes }}
         <org.csanchez.jenkins.plugins.kubernetes.volumes.{{ $pvolume.Type}}>
           <mountPath>{{ $pvolume.MountPath }}</mountPath>
           {{- if eq "HostPathVolume" $pvolume.Type }}
@@ -38,10 +38,10 @@ data:
           <readOnly>{{ default false $pvolume.ReadOnly }}</readOnly>
           {{- end }}
         </org.csanchez.jenkins.plugins.kubernetes.volumes.{{ $pvolume.Type}}>
-{{- end}}
+      {{- end}}
       </volumes>
       <containers>
-{{- range $ckey, $cval := $pval.Containers }}
+      {{- range $ckey, $cval := $pval.Containers }}
         <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
           <name>{{ default "jnlp" $cval.Name | lower }}</name>
           <image>{{ $cval.Image }}:{{ default "latest" $cval.ImageTag }}</image>
@@ -64,23 +64,23 @@ data:
           {{- end }}
           </envVars>
         </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
-{{- end }}
+      {{- end }}
       </containers>
       <envVars>
-{{- range $ekey, $eval := $pval.Env }}
+      {{- range $ekey, $eval := $pval.Env }}
         <org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
           <key>{{ $ekey }}</key>
           <value>{{ $eval }}</value>
         </org.csanchez.jenkins.plugins.kubernetes.model.KeyValueEnvVar>
-{{- end }}
+      {{- end }}
       </envVars>
       <annotations/>
       <imagePullSecrets>
-{{- if $pval.ImagePullSecret }}
+      {{- if $pval.ImagePullSecret }}
         <org.csanchez.jenkins.plugins.kubernetes.PodImagePullSecret>
           <name>{{ $pval.ImagePullSecret }}</name>
         </org.csanchez.jenkins.plugins.kubernetes.PodImagePullSecret>
-{{- end }}
+      {{- end }}
       </imagePullSecrets>
       <nodeProperties/>
     </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>

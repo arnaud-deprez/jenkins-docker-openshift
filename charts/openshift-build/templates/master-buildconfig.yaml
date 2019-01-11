@@ -2,7 +2,7 @@ apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   labels:
-{{ include "jenkins-openshift.labels" . | indent 4 }}
+    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
     build: jenkins
   name: {{ template "jenkins-openshift.name" . }}
 spec:
@@ -29,13 +29,13 @@ spec:
     contextDir: {{ .Values.Master.Build.ContextDir | quote }}
   strategy:
     dockerStrategy:
-{{- if .Values.Master.Build.Env }}
+    {{- if .Values.Master.Build.Env }}
       env:
-{{- range $ekey, $eval := .Values.Master.Build.Env }}
-      - name: {{ $ekey | quote }}
-        value: {{ $eval | quote }}
-{{- end }}
-{{- end }}
+      {{- range $ekey, $eval := .Values.Master.Build.Env }}
+        - name: {{ $ekey | quote }}
+          value: {{ $eval | quote }}
+      {{- end }}
+    {{- end }}
       noCache: true
       forcePull: true
       {{- if .Values.Images.OS }}
