@@ -5,33 +5,33 @@ apiVersion: v1
 items:
 {{- range $pkey, $pval := .Values.Agent.PodTemplates -}}
 {{- range $index, $pvolume := $pval.Volumes -}}
-{{- if eq "PersistentVolumeClaim" $pvolume.Type }}
-- kind: PersistentVolumeClaim
-  apiVersion: v1
-  metadata:
-{{- if $pvolume.Annotations }}
-    annotations:
-{{ toYaml $pvolume.Annotations | indent 6 }}
-{{- end }}
-    name: "{{ $pvolume.ClaimName }}"
-    labels:
-{{ include "jenkins-openshift.labels" $root | indent 6 }}
-      role: jenkins-agent
-      slave: {{ $pval.Name }}
-  spec:
-    accessModes:
-      - {{ $pvolume.AccessMode | quote }}
-    resources:
-      requests:
-        storage: {{ $pvolume.Size | quote }}
-{{- if $pvolume.StorageClass }}
-{{- if (eq "-" $pvolume.StorageClass) }}
-    storageClassName: ""
-{{- else }}
-    storageClassName: "{{ $pvolume.StorageClass }}"
-{{- end }}
-{{- end }}
-{{- end }}
+  {{- if eq "PersistentVolumeClaim" $pvolume.Type }}
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      {{- if $pvolume.Annotations }}
+      annotations:
+        {{ toYaml $pvolume.Annotations | nindent 8 | trim }}
+      {{- end }}
+      labels:
+        {{ include "jenkins-openshift.labels" $root | nindent 8 | trim }}
+        role: jenkins-agent
+        slave: {{ $pval.Name }}
+      name: "{{ $pvolume.ClaimName }}"      
+    spec:
+      accessModes:
+        - {{ $pvolume.AccessMode | quote }}
+      resources:
+        requests:
+          storage: {{ $pvolume.Size | quote }}
+      {{- if $pvolume.StorageClass }}
+      {{- if (eq "-" $pvolume.StorageClass) }}
+      storageClassName: ""
+      {{- else }}
+      storageClassName: "{{ $pvolume.StorageClass }}"
+      {{- end }}
+      {{- end }}
+  {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

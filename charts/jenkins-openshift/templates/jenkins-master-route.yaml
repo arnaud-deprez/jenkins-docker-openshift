@@ -3,12 +3,12 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   labels:
-{{ include "jenkins-openshift.labels" . | indent 4 }}
+    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
   annotations:
     template.openshift.io/expose-uri: http://{.spec.host}{.spec.path}
-{{- if .Values.Master.Ingress.Annotations }}
-{{ toYaml .Values.Master.Ingress.Annotations | indent 4 }}
-{{- end }}
+    {{- if .Values.Master.Ingress.Annotations }}
+    {{ toYaml .Values.Master.Ingress.Annotations | nindent 4 | trim}}
+    {{- end }}
   name: {{ template "jenkins-openshift.fullname" . }}
 spec:
   host: {{ .Values.Master.HostName }}

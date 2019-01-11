@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: {{ template "jenkins-openshift.fullname" . }}
   labels:
-{{ include "jenkins-openshift.labels" . | indent 4 }}
-{{- if .Values.Master.ServiceAnnotations }}
+    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
+  {{- if .Values.Master.ServiceAnnotations }}
   annotations:
-{{ toYaml .Values.Master.ServiceAnnotations | indent 4 }}
-{{- end }}
+    {{ toYaml .Values.Master.ServiceAnnotations | nindent 4 | trim }}
+  {{- end }}
 spec:
   ports:
     - port: {{.Values.Master.ServicePort }}

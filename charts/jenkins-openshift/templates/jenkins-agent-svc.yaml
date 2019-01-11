@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: {{ template "jenkins-openshift.fullname" . }}-agent
   labels:
-{{ include "jenkins-openshift.labels" . | indent 4 }}
-{{- if .Values.Master.SlaveListenerServiceAnnotations }}
+    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
+  {{- if .Values.Master.SlaveListenerServiceAnnotations }}
   annotations:
-{{ toYaml .Values.Master.SlaveListenerServiceAnnotations | indent 4 }}
-{{- end }}
+    {{ toYaml .Values.Master.SlaveListenerServiceAnnotations | nindent 4 | trim }}
+  {{- end }}
 spec:
   ports:
     - port: {{ .Values.Master.AgentListenerPort }}

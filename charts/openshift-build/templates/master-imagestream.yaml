@@ -2,7 +2,7 @@ apiVersion: image.openshift.io/v1
 kind: ImageStream
 metadata:
   labels:
-{{ include "jenkins-openshift.labels" . | indent 4 }}
+    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
     build: jenkins
   name: {{ regexSplit "/" .Values.Master.Image -1 | last}}
 spec: {}

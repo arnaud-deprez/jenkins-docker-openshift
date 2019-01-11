@@ -2,24 +2,24 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-{{- if .Values.Master.Persistence.Annotations }}
+  {{- if .Values.Master.Persistence.Annotations }}
   annotations:
-{{ toYaml .Values.Master.Persistence.Annotations | indent 4 }}
-{{- end }}
+    {{ toYaml .Values.Master.Persistence.Annotations | nindent 4 | trim }}
+  {{- end }}
   name: {{ template "jenkins-openshift.fullname" . }}
   labels:
-{{ include "jenkins-openshift.labels" . | indent 4 }}
+    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
 spec:
   accessModes:
     - {{ .Values.Master.Persistence.AccessMode | quote }}
   resources:
     requests:
       storage: {{ .Values.Master.Persistence.Size | quote }}
-{{- if .Values.Master.Persistence.StorageClass }}
-{{- if (eq "-" .Values.Master.Persistence.StorageClass) }}
+  {{- if .Values.Master.Persistence.StorageClass }}
+  {{- if (eq "-" .Values.Master.Persistence.StorageClass) }}
   storageClassName: ""
-{{- else }}
+  {{- else }}
   storageClassName: "{{ .Values.Master.Persistence.StorageClass }}"
-{{- end }}
-{{- end }}
+  {{- end }}
+  {{- end }}
 {{- end }}
