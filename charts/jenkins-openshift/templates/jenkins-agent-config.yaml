@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
-    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
+    {{- include "jenkins-openshift.labels" . | nindent 4 }}
     role: jenkins-slave
   name: jenkins-agent-template
 data:

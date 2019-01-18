@@ -2,7 +2,7 @@ apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   labels:
-    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
+    {{- include "jenkins-openshift.labels" . | nindent 4 }}
     build: jenkins
   name: {{ template "jenkins-openshift.name" . }}
 spec:

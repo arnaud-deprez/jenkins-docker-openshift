@@ -3,6 +3,11 @@ sudo: required
 services:
   - docker
 
+env:
+  - PATH="$PATH:/tmp/bin"
+  
+install: "ci/install.sh"
+
 stages:
   - "build base"
   - "build agents"

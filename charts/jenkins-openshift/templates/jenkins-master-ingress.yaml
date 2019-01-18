@@ -3,11 +3,11 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   labels:
-    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
+    {{- include "jenkins-openshift.labels" . | nindent 4 }}
   annotations:
     template.openshift.io/expose-uri: http://{.spec.host}{.spec.path}
     {{- if .Values.Master.Ingress.Annotations }}
-    {{ toYaml .Values.Master.Ingress.Annotations | nindent 4 | trim }}
+    {{- toYaml .Values.Master.Ingress.Annotations | nindent 4 }}
     {{- end }}
   name: {{ template "jenkins-openshift.fullname" . }}
 spec:
@@ -20,6 +20,6 @@ spec:
           servicePort: {{ .Values.Master.ServicePort }}
   {{- if .Values.Master.Ingress.TLS }}
   tls:
-    {{ toYaml .Values.Master.Ingress.TLS | nindent 4 | trim }}
+    {{- toYaml .Values.Master.Ingress.TLS | nindent 4 }}
   {{- end }}
 {{- end }}
