@@ -10,7 +10,7 @@ items:
     kind: ImageStream
     metadata:
       labels:
-        {{ include "jenkins-openshift.labels" $root | nindent 8 | trim }}
+        {{- include "jenkins-openshift.labels" $root | nindent 8 }}
         build: jenkins
       name: {{ regexSplit "/" $cval.Image -1 | last | quote }}
     spec: {}

@@ -10,7 +10,7 @@ items:
     kind: BuildConfig
     metadata:
       labels:
-        {{ include "jenkins-openshift.labels" $root | nindent 8 | trim }}
+        {{- include "jenkins-openshift.labels" $root | nindent 8 }}
         build: jenkins
         image: {{ $ckey | lower | quote }}
       name: {{ regexSplit "/" $cval.Image -1 | last }}

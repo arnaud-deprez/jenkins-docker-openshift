@@ -9,7 +9,7 @@ items:
     kind: {{ default "RoleBinding" $pbindings.Kind }}
     metadata:
       labels:
-        {{ include "jenkins-openshift.labels" $root | nindent 8 | trim }}
+        {{- include "jenkins-openshift.labels" $root | nindent 8 }}
       name: "{{ $serviceName }}_{{ $pbindings.Name }}"
     roleRef:
       apiGroup: rbac.authorization.k8s.io

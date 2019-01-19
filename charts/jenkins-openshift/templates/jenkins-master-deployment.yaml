@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ template "jenkins-openshift.fullname" . }}
   labels:
-    {{ include "jenkins-openshift.labels" . | nindent 4 | trim }}
+    {{- include "jenkins-openshift.labels" . | nindent 4 }}
 spec:
   replicas: 1
   strategy:
@@ -15,19 +15,19 @@ spec:
   template:
     metadata:
       labels:
-        {{ include "jenkins-openshift.labels" . | nindent 8 | trim }}
+        {{- include "jenkins-openshift.labels" . | nindent 8 }}
     spec:
       {{- if .Values.Master.NodeSelector }}
       nodeSelector:
-        {{ toYaml .Values.Master.NodeSelector | nindent 8 | trim }}
+        {{- toYaml .Values.Master.NodeSelector | nindent 8 }}
       {{- end }}
       {{- if .Values.Master.Tolerations }}
       tolerations:
-        {{ toYaml .Values.Master.Tolerations | nindent 8 | trim }}
+        {{- toYaml .Values.Master.Tolerations | nindent 8 }}
       {{- end }}
       {{- if .Values.Master.Affinity }}
       affinity:
-        {{ toYaml .Values.Master.Affinity | nindent 8 | trim }}
+        {{- toYaml .Values.Master.Affinity | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ if .Values.RBAC.Create }}{{ default "default" .Values.RBAC.ServiceAccount.Name }}{{ end }}
       containers:
@@ -88,14 +88,14 @@ spec:
               memory: "{{ .Values.Master.Memory }}"
           volumeMounts:
           {{- if .Values.Master.Persistence.mounts }}
-            {{ toYaml .Values.Master.Persistence.mounts | nindent 12 | trim }}
+            {{- toYaml .Values.Master.Persistence.mounts | nindent 12 }}
           {{- end }}
             - mountPath: /var/lib/jenkins
               name: jenkins-home
               readOnly: false
       volumes:
       {{- if .Values.Master.Persistence.volumes }}
-        {{ toYaml .Values.Master.Persistence.volumes | nindent 8 | trim }}
+        {{- toYaml .Values.Master.Persistence.volumes | nindent 8 }}
       {{- end }}
       - name: jenkins-home
       {{- if .Values.Master.Persistence.Enabled }}

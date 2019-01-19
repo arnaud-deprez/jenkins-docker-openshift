@@ -11,10 +11,10 @@ items:
     metadata:
       {{- if $pvolume.Annotations }}
       annotations:
-        {{ toYaml $pvolume.Annotations | nindent 8 | trim }}
+        {{- toYaml $pvolume.Annotations | nindent 8 }}
       {{- end }}
       labels:
-        {{ include "jenkins-openshift.labels" $root | nindent 8 | trim }}
+        {{- include "jenkins-openshift.labels" $root | nindent 8 }}
         role: jenkins-agent
         slave: {{ $pval.Name }}
       name: "{{ $pvolume.ClaimName }}"      
