@@ -14,7 +14,7 @@ Agent:
     Jnlp:
       Containers:
         Jnlp:
-          Image: "imagestreamtag:cicd/jenkins-jnlp"
+          Image: "172.30.1.1:5000/cicd/jenkins-jnlp"
           ImageTag: "v3.11"
           Build:
             Git:
@@ -23,7 +23,7 @@ Agent:
     Base:
       Containers:
         Base:
-          Image: "imagestreamtag:cicd/jenkins-agent-base"
+          Image: "172.30.1.1:5000/cicd/jenkins-agent-base"
           ImageTag: "v3.11"
           Build:
             Git:
@@ -32,7 +32,7 @@ Agent:
     Gradle:
       Containers:
         Gradle:
-          Image: "imagestreamtag:cicd/jenkins-agent-gradle"
+          Image: "172.30.1.1:5000/cicd/jenkins-agent-gradle"
           ImageTag: "v3.11"
           Build:
             Git:
@@ -47,7 +47,7 @@ Agent:
     Nodejs:
       Containers:
         Nodejs:
-          Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
+          Image: "172.30.1.1:5000/cicd/jenkins-agent-nodejs"
           ImageTag: "v3.11"
           Build:
             Git:
