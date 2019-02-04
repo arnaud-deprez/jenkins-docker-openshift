@@ -31,72 +31,72 @@ spec:
       {{- end }}
       serviceAccountName: {{ if .Values.RBAC.Create }}{{ default "default" .Values.RBAC.ServiceAccount.Name }}{{ end }}
       containers:
-        - name: "jenkins"
-          image: "{{ .Values.Master.Image }}:{{ .Values.Master.ImageTag }}"
-          imagePullPolicy: "{{ .Values.Master.ImagePullPolicy }}"
-          env:
-          - name: OPENSHIFT_ENABLE_OAUTH
-            value: {{ .Values.Master.OAuth.Enabled | quote }}
-          - name: OPENSHIFT_ENABLE_REDIRECT_PROMPT
-            value: "true"
-          - name: KUBERNETES_MASTER
-            value: https://kubernetes.default:443
-          - name: KUBERNETES_TRUST_CERTIFICATES
-            value: "true"
-          - name: JENKINS_SERVICE_NAME
-            value: {{ template "jenkins-openshift.fullname" . }}
-          - name: JNLP_SERVICE_NAME
-            value: {{ template "jenkins-openshift.fullname" . }}-agent
-          - name: OVERRIDE_PV_CONFIG_WITH_IMAGE_CONFIG
-            value: {{ .Values.Master.Overwrite.Config | quote }}
-          - name: OVERRIDE_PV_PLUGINS_WITH_IMAGE_PLUGINS
-            value: {{ .Values.Master.Overwrite.Plugins | quote }}
-          {{- if .Values.Master.Env }}
-          {{- range $ekey, $eval := .Values.Master.Env }}
-          - name: {{ $ekey | quote }}
-            value: {{ $eval | quote }}
-          {{- end }}
-          {{- end }}
-          ports:
-            - containerPort: {{ .Values.Master.ContainerPort }}
-              name: http
-            - containerPort: {{ .Values.Master.AgentListenerPort }}
-              name: slavelistener
-            {{- if .Values.Master.JMXPort }}
-            - containerPort: {{ .Values.Master.JMXPort }}
-              name: jmx
-            {{- end }}
-          {{- if .Values.Master.HealthProbes }}
-          livenessProbe:
-            httpGet:
-              path: /login
-              port: http
-            initialDelaySeconds: {{ .Values.Master.HealthProbes.Liveness.InitialDelay }}
-            timeoutSeconds: {{ .Values.Master.HealthProbes.Liveness.Timeout }}
-            failureThreshold: {{ .Values.Master.HealthProbes.Liveness.FailureThreshold }}
-          readinessProbe:
-            httpGet:
-              path: /login
-              port: http
-            initialDelaySeconds: {{ .Values.Master.HealthProbes.Readiness.Timeout }}
-            timeoutSeconds: {{ .Values.Master.HealthProbes.Readiness.Timeout }}
-            failureThreshold: {{ .Values.Master.HealthProbes.Readiness.FailureThreshold }}
-          {{- end }}
-          resources:
-            requests:
-              cpu: "{{ .Values.Master.Cpu }}"
-              memory: "{{ .Values.Master.Memory }}"
-          volumeMounts:
-          {{- if .Values.Master.Persistence.mounts }}
-            {{- toYaml .Values.Master.Persistence.mounts | nindent 12 }}
-          {{- end }}
-            - mountPath: /var/lib/jenkins
-              name: jenkins-home
-              readOnly: false
+      - name: "jenkins"
+        image: "{{ .Values.Master.Image }}:{{ .Values.Master.ImageTag }}"
+        imagePullPolicy: "{{ .Values.Master.ImagePullPolicy }}"
+        env:
+        - name: OPENSHIFT_ENABLE_OAUTH
+          value: {{ .Values.Master.OAuth.Enabled | quote }}
+        - name: OPENSHIFT_ENABLE_REDIRECT_PROMPT
+          value: "true"
+        - name: KUBERNETES_MASTER
+          value: https://kubernetes.default:443
+        - name: KUBERNETES_TRUST_CERTIFICATES
+          value: "true"
+        - name: JENKINS_SERVICE_NAME
+          value: {{ template "jenkins-openshift.fullname" . }}
+        - name: JNLP_SERVICE_NAME
+          value: {{ template "jenkins-openshift.fullname" . }}-agent
+        - name: OVERRIDE_PV_CONFIG_WITH_IMAGE_CONFIG
+          value: {{ .Values.Master.Overwrite.Config | quote }}
+        - name: OVERRIDE_PV_PLUGINS_WITH_IMAGE_PLUGINS
+          value: {{ .Values.Master.Overwrite.Plugins | quote }}
+        {{- if .Values.Master.Env }}
+        {{- range $ekey, $eval := .Values.Master.Env }}
+        - name: {{ $ekey | quote }}
+          value: {{ $eval | quote }}
+        {{- end }}
+        {{- end }}
+        ports:
+        - containerPort: {{ .Values.Master.ContainerPort }}
+          name: http
+        - containerPort: {{ .Values.Master.AgentListenerPort }}
+          name: slavelistener
+        {{- if .Values.Master.JMXPort }}
+        - containerPort: {{ .Values.Master.JMXPort }}
+          name: jmx
+        {{- end }}
+        {{- if .Values.Master.HealthProbes }}
+        livenessProbe:
+          httpGet:
+            path: /login
+            port: http
+          initialDelaySeconds: {{ .Values.Master.HealthProbes.Liveness.InitialDelay }}
+          timeoutSeconds: {{ .Values.Master.HealthProbes.Liveness.Timeout }}
+          failureThreshold: {{ .Values.Master.HealthProbes.Liveness.FailureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: http
+          initialDelaySeconds: {{ .Values.Master.HealthProbes.Readiness.Timeout }}
+          timeoutSeconds: {{ .Values.Master.HealthProbes.Readiness.Timeout }}
+          failureThreshold: {{ .Values.Master.HealthProbes.Readiness.FailureThreshold }}
+        {{- end }}
+        resources:
+          requests:
+            cpu: "{{ .Values.Master.Cpu }}"
+            memory: "{{ .Values.Master.Memory }}"
+        volumeMounts:
+        {{- if .Values.Master.Persistence.mounts }}
+        {{- toYaml .Values.Master.Persistence.mounts | nindent 8 }}
+        {{- end -}}
+        - mountPath: /var/lib/jenkins
+          name: jenkins-home
+          readOnly: false
       volumes:
       {{- if .Values.Master.Persistence.volumes }}
-        {{- toYaml .Values.Master.Persistence.volumes | nindent 8 }}
-      {{- end }}
+      {{- toYaml .Values.Master.Persistence.volumes | nindent 6 }}
+      {{- end -}}
       - name: jenkins-home
       {{- if .Values.Master.Persistence.Enabled }}
         persistentVolumeClaim:
