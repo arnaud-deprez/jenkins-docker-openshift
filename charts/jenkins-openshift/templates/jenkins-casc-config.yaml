@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "jenkins-openshift.labels" . | nindent 4 }}
+  name: jenkins-casc
+data:
+  jenkins.yaml: |
+    jenkins:
+      systemMessage: "Jenkins configured automatically by Jenkins Configuration as Code Plugin\n\n"
+      clouds:
+      - kubernetes:
+          name: "openshift"
+          # credentialsId: 1a12dfa4-7fc5-47a7-aa17-cc56572a41c7
+          containerCapStr: "100"
+          retentionTimeout: 2
+          skipTlsVerify: false
+          addMasterProxyEnvVars: true
+          {{- if .Values.Agent.Enabled }}
+          templates:
+          {{- range $pkey, $pval := .Values.Agent.PodTemplates }}
+          - name: {{ required "PodTemplate name is required!" $pval.Name }}
+            label: {{ required "PodTemplate label is required!" $pval.Label }}
+            {{- if $pval.InheritFrom }}
+            inheritFrom: {{ $pval.InheritFrom }}
+            {{- end }}
+            instanceCap: 10
+            idleMinutes: 15
+            {{- if $pval.ServiceAccount }}
+            serviceAccount: {{ $pval.ServiceAccount }}
+            {{- end }}
+            {{- if $pval.NodeSelector }}
+            nodeSelector:
+            {{- range $key, $value := $pval.NodeSelector }}
+              {{- $key }}: {{ $value }}
+            {{- end }}
+            {{- end }}
+            {{- if $pval.Volumes }}
+            volumes:
+            {{- range $index, $pvolume := $pval.Volumes }}
+            - {{ $pvolume.Type }}:
+              mountPath: {{ $pvolume.MountPath }}
+              {{- if eq "hostPathVolume" $pvolume.Type }}
+              hostPath: {{ $pvolume.HostPath }}
+              {{- else if eq "configMapVolume" $pvolume.Type }}
+              configMapName: {{ $pvolume.ConfigMapName }}
+              {{- else if eq "secretVolume" $pvolume.Type }}
+              secretName: {{ $pvolume.SecretName }}
+              {{- else if eq "persistentVolumeClaim" $pvolume.Type }}
+              claimName: {{ $pvolume.ClaimName }}
+              readOnly: {{ default false $pvolume.ReadOnly }}
+              {{- end }}
+            {{- end}}
+            {{- end}}
+            {{- /* It is possible to not have containers when it is just inheriting many podTemplate */ -}}}
+            {{- if $pval.Containers }}
+            containers:
+            {{- range $ckey, $cval := $pval.Containers }}
+            - name: {{ default "jnlp" $cval.Name | lower }}
+              image: {{ $cval.Image }}:{{ default "latest" $cval.ImageTag }}
+              privileged: {{ default false $cval.Privileged }}
+              alwaysPullImage: {{ default true $cval.AlwaysPullImage }}
+              workingDir: /tmp
+              {{- if $cval.Command }}
+              command: {{ $cval.Command }}
+              {{- end }}
+              args: {{ default "${computer.jnlpmac} ${computer.name}" $cval.Args }}
+              ttyEnabled: {{ default false $cval.TtyEnabled }}
+              {{- if $cval.Resources.RequestCpu }}
+              resourceRequestCpu: {{ $cval.Resources.RequestCpu }}
+              {{- end }}
+              {{- if $cval.Resources.RequestMemory }}
+              resourceRequestMemory: {{ $cval.Resources.RequestMemory }}
+              {{- end }}
+              {{- if $cval.Resources.LimitCpu }}
+              resourceLimitCpu: {{ $cval.Resources.LimitCpu }}
+              {{- end }}
+              {{- if $cval.Resources.LimitMemory }}
+              resourceLimitMemory: {{ $cval.Resources.LimitMemory }}
+              {{- end }}
+              {{- if $cval.Env }}
+              envVars:
+              {{- range $cekey, $ceval := $cval.Env }}
+              - envVar: 
+                  key: {{ $cekey }}
+                  value: {{ $ceval }}
+              {{- end }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if $pval.Env }}
+            envVars:
+            {{- range $ekey, $eval := $pval.Env }}
+            - envVar: 
+                key: {{ $ekey }}
+                value: {{ $eval }}
+            {{- end }}
+            {{- end }}
+            annotations: []
+            {{- if $pval.ImagePullSecret }}
+            imagePullSecrets:
+            - name: {{ $pval.ImagePullSecret }}
+            {{- end }}
+            nodeProperties: []
+          {{- end }}
+          {{- end }}
+    unclassified:
+      sonarglobalconfiguration:
+        buildWrapperEnabled: true
+        installations:
+        - name: sonarqube
+          serverUrl: http://sonarqube:9000

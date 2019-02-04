@@ -10,9 +10,9 @@ metadata:
   {{- end }}
 spec:
   ports:
-    - port: {{ .Values.Master.AgentListenerPort }}
-      targetPort: {{ .Values.Master.AgentListenerPort }}
-      name: slavelistener
+  - port: {{ .Values.Master.AgentListenerPort }}
+    targetPort: {{ .Values.Master.AgentListenerPort }}
+    name: slavelistener
   selector:
     app.kubernetes.io/name: {{ include "jenkins-openshift.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

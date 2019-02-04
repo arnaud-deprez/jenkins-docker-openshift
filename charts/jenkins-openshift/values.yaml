@@ -16,8 +16,8 @@ Master:
   Name: jenkins-master
   # Image: "jenkinsci/jenkins"
   # ImageTag: "2.89"
-  Image: "172.30.1.1:5000/cicd/jenkins-openshift"
-  ImageTag: "v3.11"
+  Image: "arnaudeprez/jenkins-openshift"
+  ImageTag: "latest"
   ImagePullPolicy: "Always"
   Component: "jenkins-master"
   UseSecurity: true
@@ -47,7 +47,8 @@ Master:
 # HostName: jenkins.cluster.local
 # NodePort: <to set explicitly, choose port between 30000-32767
   Env:
-    TILLER_NAMESPACE: tiller
+    JENKINS_PASSWORD: admin
+    CASC_JENKINS_CONFIG: /config/casc
   ContainerPort: 8080
   AgentListenerPort: 50000
   NodeSelector: {}
@@ -70,8 +71,16 @@ Master:
     Enabled: "true"
     Size: "5Gi"
     AccessMode: "ReadWriteOnce"
+    volumes:
+    - name: jenkins-casc
+      configMap: 
+        name: jenkins-casc
+    mounts:
+    - name: jenkins-casc
+      mountPath: /config/casc
+      readOnly: true
   OAuth:
-    Enabled: "true"
+    Enabled: "false"
   Ingress:
     Annotations:
       # kubernetes.io/ingress.class: nginx
@@ -119,8 +128,8 @@ Agent:
       Label: jnlp
       Containers:
         Jnlp:
-          Image: "imagestreamtag:cicd/jenkins-jnlp"
-          ImageTag: "v3.11"
+          Image: "arnaudeprez/jenkins-openshift-jnlp"
+          ImageTag: "latest"
           Resources:
             RequestCpu: "100m"
             RequestMemory: "128Mi"
@@ -144,8 +153,8 @@ Agent:
       Containers:
         Base:
           Name: base
-          Image: "imagestreamtag:cicd/jenkins-agent-base"
-          ImageTag: "v3.11"
+          Image: "arnaudeprez/jenkins-agent-base"
+          ImageTag: "latest"
           Resources:
             RequestCpu: "100m"
             RequestMemory: "192Mi"
@@ -161,8 +170,8 @@ Agent:
       Containers:
         Gradle:
           Name: gradle
-          Image: "imagestreamtag:cicd/jenkins-agent-gradle"
-          ImageTag: "v3.11"
+          Image: "arnaudeprez/jenkins-agent-gradle"
+          ImageTag: "latest"
           Env:
             _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx512m'
             GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1'
@@ -186,8 +195,8 @@ Agent:
       Containers:
         Nodejs:
           Name: nodejs
-          Image: "imagestreamtag:cicd/jenkins-agent-nodejs"
-          ImageTag: "v3.11"
+          Image: "arnaudeprez/jenkins-agent-nodejs"
+          ImageTag: "latest"
           Env:
             CI: "true"
             NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"

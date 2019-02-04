@@ -10,12 +10,12 @@ metadata:
   {{- end }}
 spec:
   ports:
-    - port: {{.Values.Master.ServicePort }}
-      name: http
-      targetPort: {{ .Values.Master.ContainerPort }}
-      {{- if (and (eq .Values.Master.ServiceType "NodePort") (not (empty .Values.Master.NodePort))) }}
-      nodePort: {{ .Values.Master.NodePort }}
-      {{- end }}
+  - port: {{.Values.Master.ServicePort }}
+    name: http
+    targetPort: {{ .Values.Master.ContainerPort }}
+    {{- if (and (eq .Values.Master.ServiceType "NodePort") (not (empty .Values.Master.NodePort))) }}
+    nodePort: {{ .Values.Master.NodePort }}
+    {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "jenkins-openshift.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
