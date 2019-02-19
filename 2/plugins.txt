@@ -1,8 +1,6 @@
-# Jenkins version: 2.138.4
+# Jenkins version: 2.150.2
 
-blueocean:1.10.2
 pipeline-utility-steps:2.2.0
-job-dsl:1.71
 jobConfigHistory:2.19
 throttle-concurrents:2.0.1
 build-monitor-plugin:1.12+build.201809061734
