@@ -37,7 +37,7 @@ projectsEvaluated {
                      * So we need to remove the old tasks `publishMavenJavaPublicationToMavenRepository` before adding a new maven repo, 
                      * otherwise the build will fail complaining that the task publishMavenJavaPublicationToMavenRepository already exists.
                      */
-                    if (project.gradle.gradleVersion >= '4.7' && !project.getTasksByName('publishMavenJavaPublicationToMavenRepository', false).isEmpty()) {
+                    if (!project.getTasksByName('publishMavenJavaPublicationToMavenRepository', false).isEmpty()) {
                         project.tasks.remove(project.publishMavenJavaPublicationToMavenRepository)
                     }
                     // add the new one
