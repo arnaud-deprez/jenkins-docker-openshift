@@ -5,10 +5,10 @@ MAINTAINER Arnaud Deprez<arnaudeprez@gmail.com>
 ENV NPM_CONFIG_PREFIX=$HOME/.npm-global \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH
 
-USER root
+ARG NODE_VERSION=10.15.3
+ARG YARN_VERSION=1.13.0
 
-ENV NODE_VERSION=10.15.0 \
-    YARN_VERSION=1.12.3
+USER root
 
 RUN curl -fsSL https://rpm.nodesource.com/setup_10.x | bash - && \
     curl -fsSL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo && \

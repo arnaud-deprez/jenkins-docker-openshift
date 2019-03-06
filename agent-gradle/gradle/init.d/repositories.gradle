@@ -13,30 +13,42 @@ allprojects {
             maven { url System.env.MAVEN_MIRROR_URL }
         }
     }
+    task showPublishRepositories {
+        doLast {
+            println "List of repositories to publish artifacts:"
+            project.publishing.repositories.forEach {
+                println "${it.name}: ${it.url}"
+            }
+        }
+    }
 }
 
 projectsEvaluated {
     allprojects {
-        if (System.env.MAVEN_PUBLISH_SNAPSHOT_URL?.trim() &&
-            System.env.MAVEN_PUBLISH_URL?.trim() &&
-            System.env.MAVEN_PUBLISH_USERNAME?.trim() &&
-            System.env.MAVEN_PUBLISH_PASSWORD?.trim()) {
+        if (System.env.MAVEN_PUBLISH_URL?.trim()) {
             // apply maven-publish in case it was not applied before
             apply plugin: 'maven-publish'
 
             publishing.repositories {
                 // clear all repo
                 clear()
+                // clear default publishMavenJavaPublicationToMavenRepository
+                if (!project.getTasksByName('publishMavenJavaPublicationToMavenRepository', false).isEmpty()) {
+                    project.tasks.remove(project.publishMavenJavaPublicationToMavenRepository)
+                }
                 // add the new one
                 maven {
-                    if (project.version.endsWith('-SNAPSHOT')) {
+                    if (System.env.MAVEN_PUBLISH_SNAPSHOT_URL?.trim() && project.version.endsWith('-SNAPSHOT')) {
                         url = System.env.MAVEN_PUBLISH_SNAPSHOT_URL
                     } else {
                         url = System.env.MAVEN_PUBLISH_URL
                     }
-                    credentials {
-                        username = System.env.MAVEN_PUBLISH_USERNAME
-                        password = System.env.MAVEN_PUBLISH_PASSWORD
+                    if (System.env.MAVEN_PUBLISH_USERNAME?.trim() &&
+                        System.env.MAVEN_PUBLISH_PASSWORD?.trim()) {
+                        credentials {
+                            username = System.env.MAVEN_PUBLISH_USERNAME
+                            password = System.env.MAVEN_PUBLISH_PASSWORD
+                        }
                     }
                 }
             }
