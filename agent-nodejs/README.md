@@ -6,8 +6,15 @@ The purpose of this image is to:
 
 * install nodejs and npm
 * install yarn
-* use NPM_MIRROR_URL to download dependencies from a private mirror registry
-* use combination of NPM_PUBLISH_URL, NPM_PUBLISH_USERNAME and NPM_PUBLISH_PASSWORD to publish nodejs libraries on a private registry
+
+It optionally supports some environment variable when it is used with an enterprise maven repository:
+
+| Environment variable         | Description |
+| ---------------------------- | ----------- |
+| `NPM_MIRROR_URL`           | a npm mirror url used to download artifacts |
+| `NPM_PUBLISH_URL`          | a npm repository url used to publish artifacts |
+| `NPM_PUBLISH_USERNAME`     | a username used to authenticate against `NPM_PUBLISH_URL` |
+| `NPM_PUBLISH_PASSWORD`     | the password associated to the username for authentication |
 
 ## Setup this slave in Openshift
 
