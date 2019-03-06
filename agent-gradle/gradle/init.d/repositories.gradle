@@ -15,9 +15,11 @@ allprojects {
     }
     task showPublishRepositories {
         doLast {
-            println "List of repositories to publish artifacts:"
-            project.publishing.repositories.forEach {
-                println "${it.name}: ${it.url}"
+            if (project.hasProperty('publishing')) {
+                println "List of repositories to publish artifacts:"
+                project.publishing.repositories.forEach {
+                    println "${it.name}: ${it.url}"
+                }
             }
         }
     }
@@ -25,29 +27,28 @@ allprojects {
 
 projectsEvaluated {
     allprojects {
-        if (System.env.MAVEN_PUBLISH_URL?.trim()) {
-            // apply maven-publish in case it was not applied before
-            apply plugin: 'maven-publish'
-
-            publishing.repositories {
-                // clear all repo
-                clear()
-                // clear default publishMavenJavaPublicationToMavenRepository
-                if (!project.getTasksByName('publishMavenJavaPublicationToMavenRepository', false).isEmpty()) {
-                    project.tasks.remove(project.publishMavenJavaPublicationToMavenRepository)
-                }
-                // add the new one
-                maven {
-                    if (System.env.MAVEN_PUBLISH_SNAPSHOT_URL?.trim() && project.version.endsWith('-SNAPSHOT')) {
-                        url = System.env.MAVEN_PUBLISH_SNAPSHOT_URL
-                    } else {
-                        url = System.env.MAVEN_PUBLISH_URL
+        pluginManager.withPlugin('maven-publish') {
+            if (System.env.MAVEN_PUBLISH_URL?.trim()) {
+                publishing.repositories {
+                    // clear all repo
+                    clear()
+                    // clear default publishMavenJavaPublicationToMavenRepository
+                    if (!project.getTasksByName('publishMavenJavaPublicationToMavenRepository', false).isEmpty()) {
+                        project.tasks.remove(project.publishMavenJavaPublicationToMavenRepository)
                     }
-                    if (System.env.MAVEN_PUBLISH_USERNAME?.trim() &&
-                        System.env.MAVEN_PUBLISH_PASSWORD?.trim()) {
-                        credentials {
-                            username = System.env.MAVEN_PUBLISH_USERNAME
-                            password = System.env.MAVEN_PUBLISH_PASSWORD
+                    // add the new one
+                    maven {
+                        if (System.env.MAVEN_PUBLISH_SNAPSHOT_URL?.trim() && project.version.endsWith('-SNAPSHOT')) {
+                            url = System.env.MAVEN_PUBLISH_SNAPSHOT_URL
+                        } else {
+                            url = System.env.MAVEN_PUBLISH_URL
+                        }
+                        if (System.env.MAVEN_PUBLISH_USERNAME?.trim() &&
+                            System.env.MAVEN_PUBLISH_PASSWORD?.trim()) {
+                            credentials {
+                                username = System.env.MAVEN_PUBLISH_USERNAME
+                                password = System.env.MAVEN_PUBLISH_PASSWORD
+                            }
                         }
                     }
                 }
