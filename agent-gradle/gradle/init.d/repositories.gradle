@@ -28,19 +28,9 @@ allprojects {
 projectsEvaluated {
     allprojects {
         pluginManager.withPlugin('maven-publish') {
-            if (System.env.MAVEN_PUBLISH_URL?.trim()) {
+            // add a default repository if there is not already and there is at least one publication.
+            if (System.env.MAVEN_PUBLISH_URL?.trim() && publishing.repositories.isEmpty() && !publishing.publications.isEmpty()) {
                 publishing.repositories {
-                    // clear all repo
-                    clear()
-                    /**
-                     * Workaround since gradle 4.7, it creates a task for each repo that you add.
-                     * So we need to remove the old tasks `publishMavenJavaPublicationToMavenRepository` before adding a new maven repo, 
-                     * otherwise the build will fail complaining that the task publishMavenJavaPublicationToMavenRepository already exists.
-                     */
-                    if (!project.getTasksByName('publishMavenJavaPublicationToMavenRepository', false).isEmpty()) {
-                        project.tasks.remove(project.publishMavenJavaPublicationToMavenRepository)
-                    }
-                    // add the new one
                     maven {
                         if (System.env.MAVEN_PUBLISH_SNAPSHOT_URL?.trim() && project.version.endsWith('-SNAPSHOT')) {
                             url = System.env.MAVEN_PUBLISH_SNAPSHOT_URL
