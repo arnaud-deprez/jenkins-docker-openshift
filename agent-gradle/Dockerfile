@@ -9,7 +9,7 @@ ARG GRADLE_DOWNLOAD_SHA256=748c33ff8d216736723be4037085b8dc342c6a0f309081acf682c
 
 USER root
 
-RUN INSTALL_PKGS="java-11-openjdk-devel.x86_64 java-11-openjdk-devel.i686" \
+RUN INSTALL_PKGS="java-11-openjdk-devel" \
     && yum install -y --enablerepo=centosplus $INSTALL_PKGS \
 	&& echo "Downloading Gradle" \
 	&& curl -fsSL -o gradle.zip "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" \
