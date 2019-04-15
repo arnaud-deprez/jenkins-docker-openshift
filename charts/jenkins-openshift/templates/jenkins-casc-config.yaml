@@ -52,7 +52,7 @@ data:
               {{- end }}
             {{- end}}
             {{- end}}
-            {{- /* It is possible to not have containers when it is just inheriting many podTemplate */ -}}}
+            {{- /* It is possible to not have containers when it is just inheriting many podTemplate */ -}}
             {{- if $pval.Containers }}
             containers:
             {{- range $ckey, $cval := $pval.Containers }}
