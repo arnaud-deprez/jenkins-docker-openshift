@@ -35,7 +35,7 @@ Master:
 #      -Djenkins.displayurl.provider=org.jenkinsci.plugins.blueoceandisplayurl.BlueOceanDisplayURLImpl
 # JenkinsOpts: ""
 # JenkinsUriPrefix: "/jenkins"
-  ServicePort: 8080
+  ServicePort: 80
 # For minikube, set this to NodePort, elsewhere use LoadBalancer
 # Use ClusterIP if your setup includes ingress controller
   ServiceType: ClusterIP
