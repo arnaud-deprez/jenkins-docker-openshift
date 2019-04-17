@@ -6,7 +6,7 @@ ENV NPM_CONFIG_PREFIX=$HOME/.npm-global \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH
 
 ARG NODE_VERSION=10.15.3
-ARG YARN_VERSION=1.13.0
+ARG YARN_VERSION=1.15.2
 
 USER root
 

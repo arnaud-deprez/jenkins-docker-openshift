@@ -1,14 +1,14 @@
-# Jenkins version: 2.150.2
+# Jenkins version: 2.164.2
 
-pipeline-utility-steps:2.2.0
-jobConfigHistory:2.19
+pipeline-utility-steps:2.3.0
+jobConfigHistory:2.20
 throttle-concurrents:2.0.1
 build-monitor-plugin:1.12+build.201809061734
-timestamper:1.8.10
+timestamper:1.9
 dependency-check-jenkins-plugin:4.0.2
 ws-cleanup:0.37
 disk-usage:0.28
-configuration-as-code:1.5
-configuration-as-code-support:1.5
-sonar:2.8
+configuration-as-code:1.11
+configuration-as-code-support:1.11
+sonar:2.8.1
 sonar-quality-gates:1.3.1

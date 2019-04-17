@@ -50,7 +50,7 @@ Master:
     JENKINS_PASSWORD: admin
     CASC_JENKINS_CONFIG: /config/casc
   ContainerPort: 8080
-  AgentListenerPort: 50000
+  SlaveListenerPort: 50000
   NodeSelector: {}
   Tolerations: {}
   # Overwrite the base jenkins config and any plugins during upgrades
@@ -80,7 +80,7 @@ Master:
       mountPath: /config/casc
       readOnly: true
   OAuth:
-    Enabled: "false"
+    Enabled: "true"
   Ingress:
     Annotations:
       # kubernetes.io/ingress.class: nginx
@@ -126,6 +126,7 @@ Agent:
     Jnlp:
       Name: jnlp
       Label: jnlp
+      ServiceAccount: jenkins
       Containers:
         Jnlp:
           Image: "arnaudeprez/jenkins-openshift-jnlp"
@@ -133,9 +134,9 @@ Agent:
           Resources:
             RequestCpu: "100m"
             RequestMemory: "128Mi"
-          Args: '${computer.jnlpmac} ${computer.name}'
           Env:
             _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
+          Command: "/usr/local/bin/run-jnlp-client"
       Env:
         CHARTMUSEUM_URL: http://chartmuseum:8080
         CHARTMUSEUM_USERNAME: admin
@@ -160,6 +161,7 @@ Agent:
             RequestMemory: "192Mi"
             LimitCpu: "1"
             LimitMemory: "512Mi"
+          Command: "/usr/local/bin/run"
           Args: cat
           TtyEnabled: true
     Gradle:
@@ -173,7 +175,7 @@ Agent:
           Image: "arnaudeprez/jenkins-agent-gradle"
           ImageTag: "latest"
           Env:
-            _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx512m'
+            _JAVA_OPTIONS: '-Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:MaxRAMPercentage=50'
             GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1'
             MAVEN_MIRROR_URL: "http://nexus3:8081/repository/maven-public"
             MAVEN_PUBLISH_SNAPSHOT_URL: "http://nexus3:8081/repository/maven-snapshots"
@@ -185,6 +187,7 @@ Agent:
             RequestMemory: "512Mi"
             LimitCpu: "2"
             LimitMemory: "2048Mi"
+          Command: "/usr/local/bin/run"
           Args: cat
           TtyEnabled: true
     Nodejs:
@@ -207,6 +210,7 @@ Agent:
             RequestMemory: "512Mi"
             LimitCpu: "2"
             LimitMemory: "2048Mi"
+          Command: "/usr/local/bin/run"
           Args: cat
           TtyEnabled: true
     GradleNodejs:

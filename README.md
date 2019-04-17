@@ -18,7 +18,7 @@ To install `helm cli` and `tiller` on `Openshift`, please follow the guideline [
 Once it is done, you can run the pre-built images based on centos and directly available from docker.io: 
 
 ```sh
-helm template --name jenkins --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" charts/jenkins-openshift | oc apply -f -
+helm template --name jenkins --namespace cicd --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" charts/jenkins-openshift | oc apply -f -
 ```
 
 Or build the image in openshift: 
@@ -35,7 +35,7 @@ oc start-build jenkins-openshift
 oc start-build jenkins-jnlp
 oc start-build jenkins-agent-base
 # deploy
-helm template --name jenkins -f charts/openshift-build/values.yaml --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" charts/jenkins-openshift | oc apply -f -
+helm template --name jenkins --namespace cicd -f charts/openshift-build/values.yaml --set fullnameOverride=jenkins --set Master.HostName="<ingress_hostname>" charts/jenkins-openshift | oc apply -f -
 ```
 
 ---
@@ -48,7 +48,7 @@ helm template --name jenkins -f charts/openshift-build/values.yaml --set fullnam
 For example, with `minishift` you can setup the hostname with:
 
 ```sh
-helm template --name jenkins --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" charts/jenkins-openshift | oc apply -f -
+helm template --name jenkins --namespace cicd --set fullnameOverride=jenkins --set Master.HostName="jenkins-cicd.$(minishift ip).nip.io" charts/jenkins-openshift | oc apply -f -
 ```
 
 ## Setup with Openshift Templates

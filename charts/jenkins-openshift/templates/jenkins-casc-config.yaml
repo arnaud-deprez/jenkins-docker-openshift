@@ -11,6 +11,10 @@ data:
       clouds:
       - kubernetes:
           name: "openshift"
+          serverUrl: https://kubernetes.default:443
+          jenkinsUrl: http://{{ template "jenkins-openshift.fullname" . }}:{{.Values.Master.ServicePort}}{{ default "" .Values.Master.JenkinsUriPrefix }}
+          jenkinsTunnel: {{ template "jenkins-openshift.fullname" . }}-agent:{{ .Values.Master.SlaveListenerPort }}
+          namespace: {{ .Release.Namespace }}
           # credentialsId: 1a12dfa4-7fc5-47a7-aa17-cc56572a41c7
           containerCapStr: "100"
           retentionTimeout: 2
@@ -62,9 +66,10 @@ data:
               alwaysPullImage: {{ default true $cval.AlwaysPullImage }}
               workingDir: /tmp
               {{- if $cval.Command }}
-              command: {{ $cval.Command }}
-              {{- end }}
-              args: {{ default "${computer.jnlpmac} ${computer.name}" $cval.Args }}
+              command: {{ $cval.Command | quote }}
+              {{ end }}
+              {{- /* JCasC uses ^ to escape environment variable substitution: https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/README.md#handling-secrets */ -}}
+              args: {{ default "^${computer.jnlpmac} ^${computer.name}" $cval.Args | quote }}
               ttyEnabled: {{ default false $cval.TtyEnabled }}
               {{- if $cval.Resources.RequestCpu }}
               resourceRequestCpu: {{ $cval.Resources.RequestCpu }}

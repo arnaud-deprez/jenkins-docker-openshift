@@ -60,7 +60,7 @@ spec:
         ports:
         - containerPort: {{ .Values.Master.ContainerPort }}
           name: http
-        - containerPort: {{ .Values.Master.AgentListenerPort }}
+        - containerPort: {{ .Values.Master.SlaveListenerPort }}
           name: slavelistener
         {{- if .Values.Master.JMXPort }}
         - containerPort: {{ .Values.Master.JMXPort }}

@@ -13,32 +13,44 @@ spec:
         pipeline { 
           agent none 
           stages {
+            stage('test base') {
+              agent { label 'base' } 
+              steps {
+                container('base') {
+                  echo 'Hello from base slave'
+                  sh '/home/jenkins/test/run'
+                }
+              }
+            }
             stage('test gradle') {
               agent { label 'gradle' } 
               steps {
-                echo 'Hello from gradle slave'
-                sh 'gradle -version'
+                container('gradle') {
+                  echo 'Hello from gradle slave'
+                  sh '/home/jenkins/test/run'
+                }
               }
             }
             stage('test nodejs') {
               agent { label 'nodejs' }
               steps {
-                echo 'Hello from nodejs slave'
-                sh 'node --version'
-                sh 'npm --version'
-                sh 'yarn --version'
+                container('nodejs') {
+                  echo 'Hello from nodejs slave'
+                  sh '/home/jenkins/test/run'
+                }
               }
             }
             stage('test gradle-nodejs') {
               agent { label 'gradle-nodejs' }
               steps {
                 echo 'Hello from gradle-nodejs slave'
-                sh 'gradle -version'
+                container('gradle') {
+                  echo 'In container gradle...'
+                  sh '/home/jenkins/test/run'
+                }
                 container('nodejs') {
                   echo 'In container nodejs...'
-                  sh 'node --version'
-                  sh 'npm --version'
-                  sh 'yarn --version'
+                  sh '/home/jenkins/test/run'
                 }
               }
             }
