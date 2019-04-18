@@ -4,25 +4,25 @@ metadata:
   name: {{ template "jenkins-openshift.fullname" . }}
   labels:
     {{- include "jenkins-openshift.labels" . | nindent 4 }}
-  {{- if .Values.Master.ServiceAnnotations }}
+  {{- if .Values.master.serviceAnnotations }}
   annotations:
-    {{- toYaml .Values.Master.ServiceAnnotations | nindent 4 }}
+    {{- toYaml .Values.master.serviceAnnotations | nindent 4 }}
   {{- end }}
 spec:
   ports:
-  - port: {{.Values.Master.ServicePort }}
+  - port: {{ .Values.master.servicePort }}
     name: http
-    targetPort: {{ .Values.Master.ContainerPort }}
-    {{- if (and (eq .Values.Master.ServiceType "NodePort") (not (empty .Values.Master.NodePort))) }}
-    nodePort: {{ .Values.Master.NodePort }}
+    targetPort: {{ .Values.master.containerPort }}
+    {{- if (and (eq .Values.master.serviceType "NodePort") (not (empty .Values.master.nodePort))) }}
+    nodePort: {{ .Values.master.nodePort }}
     {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "jenkins-openshift.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
-  type: {{ .Values.Master.ServiceType }}
-  {{- if eq .Values.Master.ServiceType "LoadBalancer"}}
-  loadBalancerSourceRanges: {{ .Values.Master.LoadBalancerSourceRanges }}
-  {{- if .Values.Master.LoadBalancerIP }}
-  loadBalancerIP: {{ .Values.Master.LoadBalancerIP }}
+  type: {{ .Values.master.serviceType }}
+  {{- if eq .Values.master.serviceType "LoadBalancer"}}
+  loadBalancerSourceRanges: {{ .Values.master.loadBalancerSourceRanges }}
+  {{- if .Values.master.loadBalancerIp }}
+  loadBalancerIP: {{ .Values.master.loadBalancerIp }}
   {{- end }}
   {{- end }}

@@ -1,4 +1,4 @@
-{{- if and (.Values.Master.HostName) (not (eq "openshift" .Values.Deployment.Type)) -}}
+{{- if .Values.master.hostName -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -6,20 +6,20 @@ metadata:
     {{- include "jenkins-openshift.labels" . | nindent 4 }}
   annotations:
     template.openshift.io/expose-uri: http://{.spec.host}{.spec.path}
-    {{- if .Values.Master.Ingress.Annotations }}
-    {{- toYaml .Values.Master.Ingress.Annotations | nindent 4 }}
+    {{- if .Values.master.ingress.annotations }}
+    {{- toYaml .Values.master.ingress.annotations | nindent 4 }}
     {{- end }}
   name: {{ template "jenkins-openshift.fullname" . }}
 spec:
   rules:
-  - host: {{ .Values.Master.HostName | quote }}
+  - host: {{ .Values.master.hostName | quote }}
     http:
       paths:
       - backend:
           serviceName: {{ template "jenkins-openshift.fullname" . }}
-          servicePort: {{ .Values.Master.ServicePort }}
-  {{- if .Values.Master.Ingress.TLS }}
+          servicePort: {{ .Values.master.servicePort }}
+  {{- if .Values.master.ingress.tls }}
   tls:
-    {{- toYaml .Values.Master.Ingress.TLS | nindent 4 }}
+    {{- toYaml .Values.master.ingress.tls | nindent 4 }}
   {{- end }}
 {{- end }}

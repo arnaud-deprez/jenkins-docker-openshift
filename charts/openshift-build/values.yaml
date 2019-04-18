@@ -1,61 +1,65 @@
-Images:
-  OS: ""
+global:
+  image:
+    registry: 172.30.1.1:5000
 
-Master:
-  Image: "172.30.1.1:5000/cicd/jenkins-openshift"
-  ImageTag: "v3.11"
-  Build:
-    Git:
-      Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-    ContextDir: "2"
-Agent:
-  Enabled: true
-  PodTemplates:
-    Jnlp:
-      Containers:
-        Jnlp:
-          Image: "172.30.1.1:5000/cicd/jenkins-jnlp"
-          ImageTag: "v3.11"
-          Build:
-            Git:
-              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-            ContextDir: "jnlp"
-    Base:
-      Containers:
-        Base:
-          Image: "172.30.1.1:5000/cicd/jenkins-agent-base"
-          ImageTag: "v3.11"
-          Build:
-            Git:
-              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-            ContextDir: "agent-base"
-    Gradle:
-      Containers:
-        Gradle:
-          Image: "172.30.1.1:5000/cicd/jenkins-agent-gradle"
-          ImageTag: "v3.11"
-          Build:
-            Git:
-              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-            ContextDir: "agent-gradle"
-            From:
-              Kind: ImageStreamTag
-              Name: "jenkins-agent-base"
-              Tag: "v3.11"
-            Triggers:
-            - Type: ImageChange
-    Nodejs:
-      Containers:
-        Nodejs:
-          Image: "172.30.1.1:5000/cicd/jenkins-agent-nodejs"
-          ImageTag: "v3.11"
-          Build:
-            Git:
-              Uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
-            ContextDir: "agent-nodejs"
-            From:
-              Kind: ImageStreamTag
-              Name: "jenkins-agent-base"
-              Tag: "v3.11"
-            Triggers:
-            - Type: ImageChange
+rbac:
+  roleBindings: 
+    - name: "admin"
+
+images:
+  os: ""
+
+master:
+  image: "jenkins-openshift"
+  imageTag: "v3.11"
+  build:
+    git:
+      uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+    contextDir: "2"
+agent:
+  enabled: true
+  podTemplates:
+    jnlp:
+      containers:
+        jnlp:
+          image: "jenkins-jnlp"
+          imageTag: "v3.11"
+          build:
+            git:
+              uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            contextDir: "jnlp"
+    base:
+      containers:
+        base:
+          image: "jenkins-builder-base"
+          imageTag: "v3.11"
+          build:
+            git:
+              uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            contextDir: "builder-base"
+    gradle:
+      containers:
+        gradle:
+          image: "jenkins-builder-gradle"
+          imageTag: "v3.11"
+          build:
+            git:
+              uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            contextDir: "builder-gradle"
+            from:
+              kind: ImageStreamTag
+              name: "jenkins-builder-base"
+              tag: "v3.11"
+    nodejs:
+      containers:
+        nodejs:
+          image: "jenkins-builder-nodejs"
+          imageTag: "v3.11"
+          build:
+            git:
+              uri: "https://github.com/arnaud-deprez/jenkins-openshift-docker.git"
+            contextDir: "builder-nodejs"
+            from:
+              kind: ImageStreamTag
+              name: "jenkins-builder-base"
+              tag: "v3.11"

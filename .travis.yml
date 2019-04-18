@@ -10,7 +10,7 @@ install: "ci/install.sh"
 
 stages:
   - "build base"
-  - "build agents"
+  - "build builders"
 
 jobs:
   include:
@@ -24,17 +24,17 @@ jobs:
       script: make -C jnlp test
       if: branch != master
     - stage: "build base"
-      name: "base agent"
-      script: make -C agent-base test
+      name: "base builder"
+      script: make -C builder-base test
       if: branch != master
     
-    - stage: "build agents"
+    - stage: "build builders"
       name: "gradle agent"
-      script: make -C agent-gradle test
+      script: make -C builder-gradle test
       if: branch != master
-    - stage: "build agents"
+    - stage: "build builders"
       name: "nodejs agent"
-      script: make -C agent-nodejs test
+      script: make -C builder-nodejs test
       if: branch != master
 
   # branch = master
@@ -47,15 +47,15 @@ jobs:
       script: make -C jnlp publish
       if: branch = master
     - stage: "build base"
-      name: "base agent"
-      script: make -C agent-base publish
+      name: "base builder"
+      script: make -C builder-base publish
       if: branch = master
     
-    - stage: "build agents"
+    - stage: "build builders"
       name: "gradle agent"
-      script: make -C agent-gradle publish
+      script: make -C builder-gradle publish
       if: branch = master
-    - stage: "build agents"
+    - stage: "build builders"
       name: "nodejs agent"
-      script: make -C agent-nodejs publish
+      script: make -C builder-nodejs publish
       if: branch = master

@@ -21,26 +21,26 @@ spec:
       labels:
         {{- include "jenkins-openshift.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.Master.NodeSelector }}
+      {{- if .Values.master.nodeSelector }}
       nodeSelector:
-        {{- toYaml .Values.Master.NodeSelector | nindent 8 }}
+        {{- toYaml .Values.master.nodeSelector | nindent 8 }}
       {{- end }}
-      {{- if .Values.Master.Tolerations }}
+      {{- if .Values.master.tolerations }}
       tolerations:
-        {{- toYaml .Values.Master.Tolerations | nindent 8 }}
+        {{- toYaml .Values.master.tolerations | nindent 8 }}
       {{- end }}
-      {{- if .Values.Master.Affinity }}
+      {{- if .Values.master.affinity }}
       affinity:
-        {{- toYaml .Values.Master.Affinity | nindent 8 }}
+        {{- toYaml .Values.master.affinity | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ if .Values.RBAC.Create }}{{ default "default" .Values.RBAC.ServiceAccount.Name }}{{ end }}
+      serviceAccountName: {{ if .Values.rbac.create }}{{ default "default" .Values.rbac.serviceAccount.name }}{{ end }}
       containers:
       - name: "jenkins"
-        image: "{{ .Values.Master.Image }}:{{ .Values.Master.ImageTag }}"
-        imagePullPolicy: "{{ .Values.Master.ImagePullPolicy }}"
+        image: "{{ .Values.global.image.registry }}/{{ .Values.master.image }}:{{ .Values.master.imageTag }}"
+        imagePullPolicy: "{{ .Values.master.imagePullPolicy }}"
         env:
         - name: OPENSHIFT_ENABLE_OAUTH
-          value: {{ .Values.Master.OAuth.Enabled | quote }}
+          value: {{ .Values.master.oauth.enabled | quote }}
         - name: OPENSHIFT_ENABLE_REDIRECT_PROMPT
           value: "true"
         - name: KUBERNETES_MASTER
@@ -52,63 +52,63 @@ spec:
         - name: JNLP_SERVICE_NAME
           value: {{ template "jenkins-openshift.fullname" . }}-agent
         - name: OVERRIDE_PV_CONFIG_WITH_IMAGE_CONFIG
-          value: {{ .Values.Master.Overwrite.Config | quote }}
+          value: {{ .Values.master.overwrite.config | quote }}
         - name: OVERRIDE_PV_PLUGINS_WITH_IMAGE_PLUGINS
-          value: {{ .Values.Master.Overwrite.Plugins | quote }}
-        {{- if .Values.Master.Env }}
-        {{- range $ekey, $eval := .Values.Master.Env }}
+          value: {{ .Values.master.overwrite.plugins | quote }}
+        {{- if .Values.master.env }}
+        {{- range $ekey, $eval := .Values.master.env }}
         - name: {{ $ekey | quote }}
           value: {{ $eval | quote }}
         {{- end }}
         {{- end }}
         ports:
-        - containerPort: {{ .Values.Master.ContainerPort }}
+        - containerPort: {{ .Values.master.containerPort }}
           name: http
-        - containerPort: {{ .Values.Master.SlaveListenerPort }}
+        - containerPort: {{ .Values.master.slaveListenerPort }}
           name: slavelistener
-        {{- if .Values.Master.JMXPort }}
-        - containerPort: {{ .Values.Master.JMXPort }}
+        {{- if .Values.master.jmxPort }}
+        - containerPort: {{ .Values.master.jmxPort }}
           name: jmx
         {{- end }}
-        {{- if .Values.Master.HealthProbes }}
+        {{- if .Values.master.healthProbes }}
         livenessProbe:
           httpGet:
             path: /login
             port: http
-          initialDelaySeconds: {{ .Values.Master.HealthProbes.Liveness.InitialDelay }}
-          timeoutSeconds: {{ .Values.Master.HealthProbes.Liveness.Timeout }}
-          failureThreshold: {{ .Values.Master.HealthProbes.Liveness.FailureThreshold }}
+          initialDelaySeconds: {{ .Values.master.healthProbes.liveness.initialDelay }}
+          timeoutSeconds: {{ .Values.master.healthProbes.liveness.timeout }}
+          failureThreshold: {{ .Values.master.healthProbes.liveness.failureThreshold }}
         readinessProbe:
           httpGet:
             path: /login
             port: http
-          initialDelaySeconds: {{ .Values.Master.HealthProbes.Readiness.Timeout }}
-          timeoutSeconds: {{ .Values.Master.HealthProbes.Readiness.Timeout }}
-          failureThreshold: {{ .Values.Master.HealthProbes.Readiness.FailureThreshold }}
+          initialDelaySeconds: {{ .Values.master.healthProbes.readiness.timeout }}
+          timeoutSeconds: {{ .Values.master.healthProbes.readiness.timeout }}
+          failureThreshold: {{ .Values.master.healthProbes.readiness.failureThreshold }}
         {{- end }}
         resources:
           requests:
-            cpu: "{{ .Values.Master.Cpu }}"
-            memory: "{{ .Values.Master.Memory }}"
+            cpu: "{{ .Values.master.cpu }}"
+            memory: "{{ .Values.master.memory }}"
         volumeMounts:
-        {{- if .Values.Master.Persistence.mounts }}
-        {{- toYaml .Values.Master.Persistence.mounts | nindent 8 }}
+        {{- if .Values.master.persistence.mounts }}
+        {{- toYaml .Values.master.persistence.mounts | nindent 8 }}
         {{- end -}}
         - mountPath: /var/lib/jenkins
           name: jenkins-home
           readOnly: false
       volumes:
-      {{- if .Values.Master.Persistence.volumes }}
-      {{- toYaml .Values.Master.Persistence.volumes | nindent 6 }}
+      {{- if .Values.master.persistence.volumes }}
+      {{- toYaml .Values.master.persistence.volumes | nindent 6 }}
       {{- end -}}
       - name: jenkins-home
-      {{- if .Values.Master.Persistence.Enabled }}
+      {{- if .Values.master.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ .Values.Master.Persistence.ExistingClaim | default (include "jenkins-openshift.fullname" .) }}
+          claimName: {{ .Values.master.persistence.existingClaim | default (include "jenkins-openshift.fullname" .) }}
       {{- else }}
         emptyDir: {}
       {{- end -}}
-      {{- if .Values.Master.ImagePullSecret -}}
+      {{- if .Values.master.imagePullSecret -}}
       imagePullSecrets:
-      - name: {{ .Values.Master.ImagePullSecret }}
+      - name: {{ .Values.master.imagePullSecret }}
       {{- end }}

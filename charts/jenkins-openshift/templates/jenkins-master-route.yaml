@@ -1,4 +1,4 @@
-{{- if and .Values.Master.HostName (eq "openshift" .Values.Deployment.Type) -}}
+{{- if and .Values.master.route.enabled -}}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
@@ -6,15 +6,13 @@ metadata:
     {{- include "jenkins-openshift.labels" . | nindent 4 }}
   annotations:
     template.openshift.io/expose-uri: http://{.spec.host}{.spec.path}
-    {{- if .Values.Master.Ingress.Annotations }}
-    {{- toYaml .Values.Master.Ingress.Annotations | nindent 4 }}
+    {{- if .Values.master.route.annotations }}
+    {{- toYaml .Values.master.route.annotations | nindent 4 }}
     {{- end }}
   name: {{ template "jenkins-openshift.fullname" . }}
 spec:
-  host: {{ .Values.Master.HostName }}
   tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
+    {{- toYaml .Values.master.route.tls | nindent 4 }}
   to:
     kind: Service
     name: {{ template "jenkins-openshift.fullname" . }}

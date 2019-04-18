@@ -1,3 +1,4 @@
+{{- $root := . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,80 +13,80 @@ data:
       - kubernetes:
           name: "openshift"
           serverUrl: https://kubernetes.default:443
-          jenkinsUrl: http://{{ template "jenkins-openshift.fullname" . }}:{{.Values.Master.ServicePort}}{{ default "" .Values.Master.JenkinsUriPrefix }}
-          jenkinsTunnel: {{ template "jenkins-openshift.fullname" . }}-agent:{{ .Values.Master.SlaveListenerPort }}
+          jenkinsUrl: http://{{ template "jenkins-openshift.fullname" . }}:{{.Values.master.servicePort}}{{ default "" .Values.master.jenkinsUriPrefix }}
+          jenkinsTunnel: {{ template "jenkins-openshift.fullname" . }}-agent:{{ .Values.master.slaveListenerPort }}
           namespace: {{ .Release.Namespace }}
           # credentialsId: 1a12dfa4-7fc5-47a7-aa17-cc56572a41c7
           containerCapStr: "100"
           retentionTimeout: 2
           skipTlsVerify: false
           addMasterProxyEnvVars: true
-          {{- if .Values.Agent.Enabled }}
+          {{- if .Values.agent.enabled }}
           templates:
-          {{- range $pkey, $pval := .Values.Agent.PodTemplates }}
-          - name: {{ required "PodTemplate name is required!" $pval.Name }}
-            label: {{ required "PodTemplate label is required!" $pval.Label }}
-            {{- if $pval.InheritFrom }}
-            inheritFrom: {{ $pval.InheritFrom }}
+          {{- range $pkey, $pval := .Values.agent.podTemplates }}
+          - name: {{ required "PodTemplate name is required!" $pval.name }}
+            label: {{ required "PodTemplate label is required!" $pval.label }}
+            {{- if $pval.inheritFrom }}
+            inheritFrom: {{ $pval.inheritFrom }}
             {{- end }}
             instanceCap: 10
             idleMinutes: 15
-            {{- if $pval.ServiceAccount }}
-            serviceAccount: {{ $pval.ServiceAccount }}
+            {{- if $pval.serviceAccount }}
+            serviceAccount: {{ $pval.serviceAccount }}
             {{- end }}
-            {{- if $pval.NodeSelector }}
+            {{- if $pval.nodeSelector }}
             nodeSelector:
-            {{- range $key, $value := $pval.NodeSelector }}
+            {{- range $key, $value := $pval.nodeSelector }}
               {{- $key }}: {{ $value }}
             {{- end }}
             {{- end }}
-            {{- if $pval.Volumes }}
+            {{- if $pval.volumes }}
             volumes:
-            {{- range $index, $pvolume := $pval.Volumes }}
-            - {{ $pvolume.Type }}:
-              mountPath: {{ $pvolume.MountPath }}
-              {{- if eq "hostPathVolume" $pvolume.Type }}
-              hostPath: {{ $pvolume.HostPath }}
-              {{- else if eq "configMapVolume" $pvolume.Type }}
-              configMapName: {{ $pvolume.ConfigMapName }}
-              {{- else if eq "secretVolume" $pvolume.Type }}
-              secretName: {{ $pvolume.SecretName }}
-              {{- else if eq "persistentVolumeClaim" $pvolume.Type }}
-              claimName: {{ $pvolume.ClaimName }}
-              readOnly: {{ default false $pvolume.ReadOnly }}
+            {{- range $index, $pvolume := $pval.volumes }}
+            - {{ $pvolume.type }}:
+              mountPath: {{ $pvolume.mountPath }}
+              {{- if eq "hostPathVolume" $pvolume.type }}
+              hostPath: {{ $pvolume.hostPath }}
+              {{- else if eq "configMapVolume" $pvolume.type }}
+              configMapName: {{ $pvolume.configMapName }}
+              {{- else if eq "secretVolume" $pvolume.type }}
+              secretName: {{ $pvolume.secretName }}
+              {{- else if eq "persistentVolumeClaim" $pvolume.type }}
+              claimName: {{ $pvolume.claimName }}
+              readOnly: {{ default false $pvolume.readOnly }}
               {{- end }}
             {{- end}}
             {{- end}}
             {{- /* It is possible to not have containers when it is just inheriting many podTemplate */ -}}
-            {{- if $pval.Containers }}
+            {{- if $pval.containers }}
             containers:
-            {{- range $ckey, $cval := $pval.Containers }}
-            - name: {{ default "jnlp" $cval.Name | lower }}
-              image: {{ $cval.Image }}:{{ default "latest" $cval.ImageTag }}
-              privileged: {{ default false $cval.Privileged }}
-              alwaysPullImage: {{ default true $cval.AlwaysPullImage }}
+            {{- range $ckey, $cval := $pval.containers }}
+            - name: {{ default "jnlp" $cval.name | lower }}
+              image: {{ $root.Values.global.image.registry }}/{{ $cval.image }}:{{ default "latest" $cval.imageTag }}
+              privileged: {{ default false $cval.privileged }}
+              alwaysPullImage: {{ default true $cval.alwaysPullImage }}
               workingDir: /tmp
-              {{ if $cval.Command -}}
-              command: {{ $cval.Command | quote }}
+              {{ if $cval.command -}}
+              command: {{ $cval.command | quote }}
               {{ end }}
               {{- /* JCasC uses ^ to escape environment variable substitution: https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/README.md#handling-secrets */ -}}
-              args: {{ default "^${computer.jnlpmac} ^${computer.name}" $cval.Args | quote }}
-              ttyEnabled: {{ default false $cval.TtyEnabled }}
-              {{- if $cval.Resources.RequestCpu }}
-              resourceRequestCpu: {{ $cval.Resources.RequestCpu }}
+              args: {{ default "^${computer.jnlpmac} ^${computer.name}" $cval.args | quote }}
+              ttyEnabled: {{ default false $cval.ttyEnabled }}
+              {{- if $cval.resources.requestCpu }}
+              resourceRequestCpu: {{ $cval.resources.requestCpu }}
               {{- end }}
-              {{- if $cval.Resources.RequestMemory }}
-              resourceRequestMemory: {{ $cval.Resources.RequestMemory }}
+              {{- if $cval.resources.requestMemory }}
+              resourceRequestMemory: {{ $cval.resources.requestMemory }}
               {{- end }}
-              {{- if $cval.Resources.LimitCpu }}
-              resourceLimitCpu: {{ $cval.Resources.LimitCpu }}
+              {{- if $cval.resources.limitCpu }}
+              resourceLimitCpu: {{ $cval.resources.limitCpu }}
               {{- end }}
-              {{- if $cval.Resources.LimitMemory }}
-              resourceLimitMemory: {{ $cval.Resources.LimitMemory }}
+              {{- if $cval.resources.limitMemory }}
+              resourceLimitMemory: {{ $cval.resources.limitMemory }}
               {{- end }}
-              {{- if $cval.Env }}
+              {{- if $cval.env }}
               envVars:
-              {{- range $cekey, $ceval := $cval.Env }}
+              {{- range $cekey, $ceval := $cval.env }}
               - envVar: 
                   key: {{ $cekey }}
                   value: {{ $ceval }}
@@ -93,18 +94,18 @@ data:
               {{- end }}
             {{- end }}
             {{- end }}
-            {{- if $pval.Env }}
+            {{- if $pval.env }}
             envVars:
-            {{- range $ekey, $eval := $pval.Env }}
+            {{- range $ekey, $eval := $pval.env }}
             - envVar: 
                 key: {{ $ekey }}
                 value: {{ $eval }}
             {{- end }}
             {{- end }}
             annotations: []
-            {{- if $pval.ImagePullSecret }}
+            {{- if $pval.imagePullSecret }}
             imagePullSecrets:
-            - name: {{ $pval.ImagePullSecret }}
+            - name: {{ $pval.imagePullSecret }}
             {{- end }}
             nodeProperties: []
           {{- end }}

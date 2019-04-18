@@ -1,25 +1,25 @@
-{{- if and .Values.Master.Persistence.Enabled (not .Values.Master.Persistence.ExistingClaim) -}}
+{{- if and .Values.master.persistence.enabled (not .Values.master.persistence.existingClaim) -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  {{- if .Values.Master.Persistence.Annotations }}
+  {{- if .Values.master.persistence.annotations }}
   annotations:
-    {{- toYaml .Values.Master.Persistence.Annotations | nindent 4 }}
+    {{- toYaml .Values.master.persistence.annotations | nindent 4 }}
   {{- end }}
   name: {{ template "jenkins-openshift.fullname" . }}
   labels:
     {{- include "jenkins-openshift.labels" . | nindent 4 }}
 spec:
   accessModes:
-    - {{ .Values.Master.Persistence.AccessMode | quote }}
+    - {{ .Values.master.persistence.accessMode | quote }}
   resources:
     requests:
-      storage: {{ .Values.Master.Persistence.Size | quote }}
-  {{- if .Values.Master.Persistence.StorageClass }}
-  {{- if (eq "-" .Values.Master.Persistence.StorageClass) }}
+      storage: {{ .Values.master.persistence.size | quote }}
+  {{- if .Values.master.persistence.storageClass }}
+  {{- if (eq "-" .Values.master.persistence.storageClass) }}
   storageClassName: ""
   {{- else }}
-  storageClassName: "{{ .Values.Master.Persistence.StorageClass }}"
+  storageClassName: "{{ .Values.master.persistence.storageClass }}"
   {{- end }}
   {{- end }}
 {{- end }}

@@ -1,11 +1,11 @@
-{{- if and (.Values.Agent.Enabled) -}}
+{{- if .Values.agent.enabled -}}
 apiVersion: v1
 kind: List
 items:
   {{- $root := . -}}
-  {{- range $pkey, $pval := .Values.Agent.PodTemplates -}}
-  {{- range $ckey, $cval := $pval.Containers -}}
-  {{- if $cval.Build }}
+  {{- range $pkey, $pval := .Values.agent.podTemplates -}}
+  {{- range $ckey, $cval := $pval.containers -}}
+  {{- if $cval.build }}
   - apiVersion: build.openshift.io/v1
     kind: BuildConfig
     metadata:
@@ -13,14 +13,14 @@ items:
         {{- include "jenkins-openshift.labels" $root | nindent 8 }}
         build: jenkins
         image: {{ $ckey | lower | quote }}
-      name: {{ regexSplit "/" $cval.Image -1 | last }}
+      name: {{ regexSplit "/" $cval.image -1 | last }}
     spec:
       failedBuildsHistoryLimit: 1
       successfulBuildsHistoryLimit: 1
       output:
         to:
           kind: ImageStreamTag
-          name: "{{ regexSplit "/" $cval.Image -1 | last }}:{{ $cval.ImageTag }}"
+          name: "{{ regexSplit "/" $cval.image -1 | last }}:{{ default "latest" $cval.imageTag }}"
       postCommit: {}
       resources:
         requests:
@@ -33,37 +33,37 @@ items:
       source:
         type: Git
         git:
-          uri: {{ $cval.Build.Git.Uri | quote }}
-          ref: {{ default "master" $cval.Build.Git.Ref | quote }}
-        contextDir: {{ $cval.Build.ContextDir | quote }}
+          uri: {{ $cval.build.git.uri | quote }}
+          ref: {{ default "master" $cval.build.git.ref | quote }}
+        contextDir: {{ $cval.build.contextDir | quote }}
       strategy:
         dockerStrategy:
-          {{- if $cval.Build.From }}
+          {{- if $cval.build.from }}
           from:
-            kind: {{ $cval.Build.From.Kind | quote }}
-            name: "{{ $cval.Build.From.Name }}:{{ default "latest" $cval.Build.From.Tag }}"
+            kind: {{ $cval.build.from.kind | quote }}
+            name: "{{ $cval.build.from.name }}:{{ default "latest" $cval.build.from.tag }}"
           {{- end }}
-          {{- if $cval.Build.Env }}
+          {{- if $cval.build.env }}
           env:
-            {{- range $ekey, $eval := $cval.Build.Env }}
+            {{- range $ekey, $eval := $cval.build.env }}
             - name: {{ $ekey | quote }}
               value: {{ $eval | quote }}
             {{- end }}
           {{- end }}
           noCache: true
           forcePull: true
-          {{- if $root.Values.Images.OS }}
-          dockerfilePath: "Dockerfile.{{ $root.Values.Images.OS }}"
+          {{- if $root.Values.images.os }}
+          dockerfilePath: "Dockerfile.{{ $root.Values.images.os }}"
           {{- end }}
         type: Docker
-      triggers: {{ if not $cval.Build.Triggers }}[]{{- else -}}
-        {{- range $index, $trigger := $cval.Build.Triggers }}
-        - type: {{ $trigger.Type | quote }}
-          {{- if eq "ImageChange" $trigger.Type }}
-          imageChange: {{ if not $trigger.From }}{}{{- else -}}
+      triggers: {{ if not $cval.build.triggers }}[]{{- else -}}
+        {{- range $index, $trigger := $cval.build.triggers }}
+        - type: {{ $trigger.type | quote }}
+          {{- if eq "ImageChange" $trigger.type }}
+          imageChange: {{ if not $trigger.from }}{}{{- else -}}
             from:
-              kind: {{ $trigger.From.Kind | quote }}
-              name: "{{ $trigger.From.Name }}:{{ default "latest" $trigger.From.Tag }}"
+              kind: {{ $trigger.from.kind | quote }}
+              name: "{{ $trigger.from.name }}:{{ default "latest" $trigger.from.tag }}"
             {{- end -}}
           {{- end -}}
         {{- end }}

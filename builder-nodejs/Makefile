@@ -1,4 +1,4 @@
-IMAGE_NAME = arnaudeprez/jenkins-agent-base:latest
+IMAGE_NAME = arnaudeprez/jenkins-builder-nodejs:latest
 
 .PHONY: build
 build:

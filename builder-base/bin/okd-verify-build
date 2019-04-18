@@ -1,0 +1,58 @@
+#!/bin/bash
+
+function usage() {
+    echo "okd-verify-build <namespace> <buildConfig...>
+
+        namespace: the namespace in which the BuildConfig resides
+        buildConfig: the list of BuildConfig object name to verify
+    "
+}
+
+function verifyBuild() {
+    local namespace=$1
+    local buildconfig=$2
+    local revision=$(kubectl -n ${namespace} get buildconfig.build.openshift.io/${buildconfig} -o=go-template --template='{{.status.lastVersion}}')
+
+    echo "watching in ${namespace} for build build.build.openshift.io/${buildconfig}-${revision} status..."
+
+    local now_ts=$(date +%s)
+    local later_ts=$((now_ts + 10*60))
+    local running=true
+    while [ $(date +%s) -lt $later_ts ] && [ "$running" = true ]
+    do
+        local phase=$(kubectl -n ${namespace} get build.build.openshift.io/${buildconfig}-${revision} -o=go-template --template='{{.status.phase}}' | tr '[:upper:]' '[:lower:]')
+        case $phase in
+            fail*)
+                echo "build.build.openshift.io/${buildconfig}-${revision} has failed!"
+                exit 1
+                ;;
+            cancel*)
+                echo "build.build.openshift.io/${buildconfig}-${revision} has been cancelled!"
+                exit 1
+                ;;
+            complete*)
+                echo ""
+                echo "build.build.openshift.io/${buildconfig}-${revision} is completed!"
+                echo ""
+                running=false;
+                ;;
+            *)
+
+        esac
+
+        printf "."
+        sleep 5
+    done
+}
+
+if [ $# -lt 2 ]
+then
+    usage
+else
+    namespace=$1
+    buildConfigs="${@:2}"
+    for build in $buildConfigs
+    do
+        verifyBuild $namespace $build
+    done
+fi
