@@ -7,13 +7,17 @@ metadata:
 spec:
   replicas: 1
   strategy:
-    type: "RollingUpdate"
+    type: "Recreate"
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "jenkins-openshift.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      annotations:
+        # trick to trigger app to restart if ConfigMap have changed
+        # https://helm.sh/docs/developing_charts/#automatically-roll-deployments-when-configmaps-or-secrets-change
+        checksum/jenkins-casc-configmap: {{ include (print $.Template.BasePath "/jenkins-casc-configmap.yaml") . | sha256sum }}
       labels:
         {{- include "jenkins-openshift.labels" . | nindent 8 }}
     spec:
