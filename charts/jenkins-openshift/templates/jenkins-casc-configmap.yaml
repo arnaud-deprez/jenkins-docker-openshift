@@ -65,7 +65,7 @@ data:
               privileged: {{ default false $cval.Privileged }}
               alwaysPullImage: {{ default true $cval.AlwaysPullImage }}
               workingDir: /tmp
-              {{- if $cval.Command }}
+              {{ if $cval.Command -}}
               command: {{ $cval.Command | quote }}
               {{ end }}
               {{- /* JCasC uses ^ to escape environment variable substitution: https://github.com/jenkinsci/configuration-as-code-plugin/blob/master/README.md#handling-secrets */ -}}
