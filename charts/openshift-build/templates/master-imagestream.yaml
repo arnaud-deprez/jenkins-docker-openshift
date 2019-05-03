@@ -4,5 +4,5 @@ metadata:
   labels:
     {{- include "jenkins-openshift.labels" . | nindent 4 }}
     build: jenkins
-  name: {{ regexSplit "/" .Values.Master.Image -1 | last}}
+  name: {{ regexSplit "/" .Values.master.image -1 | last }}
 spec: {}

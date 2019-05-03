@@ -1,0 +1,68 @@
+#!/bin/bash
+
+function usage() {
+    echo "okd-verify-workload <namespace> <workload...>
+
+        namespace: the namespace in which the workloads reside
+        workload: the list of workload in the form <type>/<name> to verify
+    "
+}
+
+function verifyDeployment() {
+    local type="deployment.apps"
+    local namespace=$1
+    local workload=$2
+    local revision=$(kubectl -n ${namespace} get ${type}/${workload} -o=go-template --template='{{ index .metadata.annotations "deployment.kubernetes.io/revision" }}')
+    local replicaset=$(kubectl -n ${namespace} get replicasets -l app.kubernetes.io/instance=${workload} -o go-template --template='{{range .items}}{{printf "%s=%s\n" .metadata.name (index .metadata.annotations "deployment.kubernetes.io/revision")}}{{end}}' | grep "=${revision}" | cut -d'=' -f1)
+
+    echo "watching in ${namespace} for ${type}/${workload} readiness through ${replicaset}..."
+
+    local now_ts=$(date +%s)
+    local later_ts=$((now_ts + 10*60))
+    local ready=false
+    while [ $(date +%s) -lt $later_ts ] && [ "$ready" = false ]
+    do
+        local desiredReplicas=$(kubectl -n ${namespace} get replicasets/${replicaset} -o=go-template --template='{{.status.replicas}}')
+        local readyReplicas=$(kubectl -n ${namespace} get replicasets/${replicaset} -o=go-template --template='{{.status.readyReplicas}}')
+
+        if [ $readyReplicas -lt $desiredReplicas ]
+        then
+            printf "."
+            sleep 5
+        else
+            echo ""
+            echo "${type}/${workload} is ready!"
+            echo ""
+            ready=true
+        fi
+    done
+    
+    if [ "$ready" = false ]
+    then
+        echo "${type}/${workload} has failed!"
+        exit 1
+    fi
+}
+
+if [ $# -lt 2 ]
+then
+    usage
+else
+    namespace=$1
+    workloads="${@:2}"
+    for workload in $workloads
+    do
+        type=$(cut -d'/' -f1 <<<"${workload}")
+        name=$(cut -d'/' -f2 <<<"${workload}")
+
+        case $type in
+            deploy*)
+                verifyDeployment $namespace $name
+                ;;
+            *)
+                echo "Unknown workload type: $type!"
+                exit 1
+                ;;
+        esac
+    done
+fi

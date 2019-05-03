@@ -1,0 +1,29 @@
+kind: "Template"
+apiVersion: "template.openshift.io/v1"
+metadata:
+  name: "jenkins-openshift-template"
+objects:
+  - kind: "BuildConfig"
+    apiVersion: "build.openshift.io/v1"
+    metadata:
+      labels:
+        build: jenkins
+        strategy: pipeline
+        app: jenkins-promote
+      name: "jenkins-promote-pipeline"
+    spec:
+      source:
+        git:
+          uri: "${GIT_URI}"
+          ref: "${GIT_REF}"
+      strategy:
+        jenkinsPipelineStrategy:
+          env:
+          - name: BRANCH_NAME
+            value: "${GIT_REF}"
+          jenkinsfilePath: Jenkinsfile.promote
+parameters:
+  - name: GIT_URI
+    value: "https://github.com/arnaud-deprez/jenkins-docker-openshift.git"
+  - name: "GIT_REF"
+    value: "master"

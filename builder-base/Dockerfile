@@ -6,10 +6,12 @@ ENV HOME=/home/jenkins
 WORKDIR /tmp
 
 RUN yum install -y epel-release && \
-    INSTALL_PKGS="bc gettext git lsof make rsync tar unzip wget which zip bzip2" && \
+    INSTALL_PKGS="bc gettext git lsof make rsync tar unzip wget which zip bzip2 jq" && \
     yum install -y $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum clean all && \
+    curl -sSL https://github.com/mikefarah/yq/releases/download/2.3.0/yq_linux_amd64 -o /usr/local/bin/yq && \
+    chmod -R 755 /usr/local/bin && \
     mkdir -p /home/jenkins && \
     chown -R 1001:0 /home/jenkins && \
     chmod -R g+w /home/jenkins && \

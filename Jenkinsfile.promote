@@ -1,0 +1,35 @@
+#!/usr/bin/env groovy
+
+def agentLabel = 'base'
+
+pipeline {
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '5'))
+    disableConcurrentBuilds()
+  }
+
+  agent { label agentLabel }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        git url: 'https://github.com/arnaud-deprez/jenkins-docker-openshift.git', branch: params.BRANCH_NAME
+      }
+    }
+    stage('Promote') {
+      steps {
+        container(agentLabel) {
+          sh '''            
+            # promote images
+            for i in $(oc -n cicd-staging get istag -l build=jenkins -o go-template --template='{{range .items}}{{.metadata.name}} {{end}}') do oc tag cicd-staging/$i cicd/$i; done
+
+            # deploy
+            export NAMESPACE=cicd
+            make --directory=charts/jenkins-openshift --environment-overrides applyFromBuild
+            okd-verify-workload cicd deployment/jenkins
+          '''
+        }
+      }
+    }
+  }
+}

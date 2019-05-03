@@ -1,18 +1,18 @@
-{{- if and (.Values.Agent.Enabled) -}}
+{{- if .Values.agent.enabled -}}
 apiVersion: v1
 kind: List
 items:
   {{- $root := . -}}
-  {{- range $pkey, $pval := .Values.Agent.PodTemplates -}}
-  {{- range $index, $cval := $pval.Containers -}}
-  {{- if $cval.Build }}
+  {{- range $pkey, $pval := .Values.agent.podTemplates -}}
+  {{- range $index, $cval := $pval.containers -}}
+  {{- if $cval.build }}
   - apiVersion: image.openshift.io/v1
     kind: ImageStream
     metadata:
       labels:
         {{- include "jenkins-openshift.labels" $root | nindent 8 }}
         build: jenkins
-      name: {{ regexSplit "/" $cval.Image -1 | last | quote }}
+      name: {{ regexSplit "/" $cval.image -1 | last | quote }}
     spec: {}
   {{- end }}
   {{- end }}

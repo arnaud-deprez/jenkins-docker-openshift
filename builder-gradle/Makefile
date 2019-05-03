@@ -1,4 +1,4 @@
-IMAGE_NAME = arnaudeprez/jenkins-agent-gradle:latest
+IMAGE_NAME = arnaudeprez/jenkins-builder-gradle:latest
 
 .PHONY: build
 build:

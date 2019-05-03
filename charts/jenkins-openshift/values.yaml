@@ -1,143 +1,145 @@
-#TODO: all values should start with lowercase https://github.com/kubernetes/helm/blob/master/docs/chart_best_practices/values.md
-Deployment:
-  Type: "openshift"
+global:
+  image:
+    registry: ""
 
-RBAC:
-  Create: true
-  RoleBindings: 
-  - Name: "admin"
-  - Name: "self-provisioner"
-    Kind: ClusterRoleBinding
-  ServiceAccount:
-    Create: true
-    Name: "jenkins"
+rbac:
+  create: true
+  roleBindings: 
+    - name: "admin"
+    - name: "self-provisioner"
+      kind: ClusterRoleBinding
+  serviceAccount:
+    create: true
+    name: "jenkins"
 
-Master:
-  Name: jenkins-master
-  # Image: "jenkinsci/jenkins"
-  # ImageTag: "2.89"
-  Image: "arnaudeprez/jenkins-openshift"
-  ImageTag: "latest"
-  ImagePullPolicy: "Always"
-  Component: "jenkins-master"
-  UseSecurity: true
-# AdminUser: admin
-# AdminPassword: <defaults to random>
-# AdminPassword: admin
-  Cpu: "200m"
-  Memory: "512Mi"
+master:
+  name: jenkins-master
+  image: "jenkins-openshift"
+  imageTag: "latest"
+  imagePullPolicy: "Always"
+  component: "jenkins-master"
+  useSecurity: true
+# adminUser: admin
+# adminPassword: <defaults to random>
+# adminPassword: admin
+  cpu: "200m"
+  memory: "512Mi"
 # Set min/max heap here if needed with:
-# JavaOpts: "-Xms512m -Xmx512m"
-#    JavaOpts: >
+# javaOpts: "-Xms512m -Xmx512m"
+#    javaOpts: >
 #      -Dhudson.slaves.NodeProvisioner.initialDelay=0
 #      -Dhudson.slaves.NodeProvisioner.MARGIN=50
 #      -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85
 #      -Djenkins.displayurl.provider=org.jenkinsci.plugins.blueoceandisplayurl.BlueOceanDisplayURLImpl
-# JenkinsOpts: ""
-# JenkinsUriPrefix: "/jenkins"
-  ServicePort: 80
+# jenkinsOpts: ""
+# jenkinsUriPrefix: "/jenkins"
+  servicePort: 80
 # For minikube, set this to NodePort, elsewhere use LoadBalancer
 # Use ClusterIP if your setup includes ingress controller
-  ServiceType: ClusterIP
+  serviceType: ClusterIP
 # Master Service annotations
-  ServiceAnnotations: {}
+  serviceAnnotations: {}
     #   service.beta.kubernetes.io/aws-load-balancer-backend-protocol: https
     # fabric8.io/expose: "true"
 # Used to create Ingress record (should used with ServiceType: ClusterIP)
 # HostName: jenkins.cluster.local
 # NodePort: <to set explicitly, choose port between 30000-32767
-  Env:
+  env:
     JENKINS_PASSWORD: admin
     CASC_JENKINS_CONFIG: /config/casc
-  ContainerPort: 8080
-  SlaveListenerPort: 50000
-  NodeSelector: {}
-  Tolerations: {}
+  containerPort: 8080
+  slaveListenerPort: 50000
+  nodeSelector: {}
+  tolerations: {}
   # Overwrite the base jenkins config and any plugins during upgrades
-  Overwrite:
-    Plugins: true
-    Config: true
+  overwrite:
+    plugins: true
+    config: true
   # Health probes
-  HealthProbes:
-    Liveness: 
-      InitialDelay: 420
-      Timeout: 3
-      FailureThreshold: 30
-    Readiness: 
-      InitialDelay: 3
-      Timeout: 3
-      FailureThreshold: 5
-  Persistence:
-    Enabled: "true"
-    Size: "5Gi"
-    AccessMode: "ReadWriteOnce"
+  healthProbes:
+    liveness: 
+      initialDelay: 420
+      timeout: 3
+      failureThreshold: 30
+    readiness: 
+      initialDelay: 3
+      timeout: 3
+      failureThreshold: 5
+  persistence:
+    enabled: "true"
+    size: "5Gi"
+    accessMode: "ReadWriteOnce"
     volumes:
-    - name: jenkins-casc
-      configMap: 
-        name: jenkins-casc
+      - name: jenkins-casc
+        configMap: 
+          name: jenkins-casc
     mounts:
-    - name: jenkins-casc
-      mountPath: /config/casc
-      readOnly: true
-  OAuth:
-    Enabled: "true"
-  Ingress:
-    Annotations:
+      - name: jenkins-casc
+        mountPath: /config/casc
+        readOnly: true
+  oauth:
+    enabled: "true"
+  ingress:
+    annotations:
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
-    TLS:
+    tls:
       # - secretName: jenkins.cluster.local
       #   hosts:
       #     - jenkins.cluster.local
+  route:
+    enabled: false
+    annotations:
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
 
-Servers:
-  BitbucketCloud:
-  #- Name: myname
-  #  Url: https://something.com/
-  #  Credential: some-cred-name
+servers:
+  bitbucketCloud:
+  #- name: myname
+  #  url: https://something.com/
+  #  credential: some-cred-name
 
-  BitbucketServer:
-  #- Name: myname
-  #  Url: https://something.com/
-  #  Credential: some-cred-name
+  bitbucketServer:
+  #- name: myname
+  #  url: https://something.com/
+  #  credential: some-cred-name
 
-  GHE:
-  #- Name: myname
-  #  Url: https://something.com/
-  #  Credential: some-cred-name
+  ghe:
+  #- name: myname
+  #  url: https://something.com/
+  #  credential: some-cred-name
 
-  Gitea:
-  #- Name: myname
-  #  Url: https://something.com/
-  #  Credential: some-cred-name
+  gitea:
+  #- name: myname
+  #  url: https://something.com/
+  #  credential: some-cred-name
 
-  GitLab:
-  #- Name: myname
-  #  Url: https://something.com/
-  #  Credential: some-cred-name
+  gitLab:
+  #- name: myname
+  #  url: https://something.com/
+  #  credential: some-cred-name
 
-Agent:
-  Enabled: true
-  Component: "jenkins-agent"
-  ContainerCap: 0
+agent:
+  enabled: true
+  component: "jenkins-agent"
+  containerCap: 0
   # Key Value selectors. Ex:
   # jenkins-agent: v1
-  PodTemplates:
-    Jnlp:
-      Name: jnlp
-      Label: jnlp
-      ServiceAccount: jenkins
-      Containers:
-        Jnlp:
-          Image: "arnaudeprez/jenkins-openshift-jnlp"
-          ImageTag: "latest"
-          Resources:
-            RequestCpu: "100m"
-            RequestMemory: "128Mi"
-          Env:
-            _JAVA_OPTIONS: '-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Xms10m -Xmx192m'
-          Command: "/usr/local/bin/run-jnlp-client"
-      Env:
+  podTemplates:
+    jnlp:
+      name: jnlp
+      label: jnlp
+      serviceAccount: jenkins
+      containers:
+        jnlp:
+          image: "jenkins-openshift-jnlp"
+          imageTag: "latest"
+          resources:
+            requestCpu: "100m"
+            requestMemory: "128Mi"
+          command: "/usr/local/bin/run-jnlp-client"
+      env:
         CHARTMUSEUM_URL: http://chartmuseum:8080
         CHARTMUSEUM_USERNAME: admin
         CHARTMUSEUM_PASSWORD: admin
@@ -146,35 +148,35 @@ Agent:
         GIT_COMMITTER_NAME: jenkins
         GIT_AUTHOR_NAME: jenkins
         XDG_CONFIG_HOME: /home/jenkins
-    Base:
-      Name: base
-      Label: base
-      ServiceAccount: jenkins
-      InheritFrom: "jnlp"
-      Containers:
-        Base:
-          Name: base
-          Image: "arnaudeprez/jenkins-agent-base"
-          ImageTag: "latest"
-          Resources:
-            RequestCpu: "100m"
-            RequestMemory: "192Mi"
-            LimitCpu: "1"
-            LimitMemory: "512Mi"
-          Command: "/usr/local/bin/run"
-          Args: cat
-          TtyEnabled: true
-    Gradle:
-      Name: gradle
-      Label: gradle
-      InheritFrom: "jnlp"
-      ServiceAccount: jenkins
-      Containers:
-        Gradle:
-          Name: gradle
-          Image: "arnaudeprez/jenkins-agent-gradle"
-          ImageTag: "latest"
-          Env:
+    base:
+      name: base
+      label: base
+      serviceAccount: jenkins
+      inheritFrom: "jnlp"
+      containers:
+        base:
+          name: base
+          image: "jenkins-builder-base"
+          imageTag: "latest"
+          resources:
+            requestCpu: "100m"
+            requestMemory: "192Mi"
+            limitCpu: "1"
+            limitMemory: "512Mi"
+          command: "/usr/local/bin/run"
+          args: cat
+          ttyEnabled: true
+    gradle:
+      name: gradle
+      label: gradle
+      inheritFrom: "jnlp"
+      serviceAccount: jenkins
+      containers:
+        gradle:
+          name: gradle
+          image: "jenkins-builder-gradle"
+          imageTag: "latest"
+          env:
             _JAVA_OPTIONS: '-Dsun.zip.disableMemoryMapping=true -XX:+UseParallelGC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:MaxRAMPercentage=50'
             GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.parallel=false -Dorg.gradle.workers.max=1'
             MAVEN_MIRROR_URL: "http://nexus3:8081/repository/maven-public"
@@ -182,39 +184,39 @@ Agent:
             MAVEN_PUBLISH_URL: "http://nexus3:8081/repository/maven-releases"
             MAVEN_PUBLISH_USERNAME: "jenkins"
             MAVEN_PUBLISH_PASSWORD: "jenkins"
-          Resources:
-            RequestCpu: "400m"
-            RequestMemory: "512Mi"
-            LimitCpu: "2"
-            LimitMemory: "2048Mi"
-          Command: "/usr/local/bin/run"
-          Args: cat
-          TtyEnabled: true
-    Nodejs:
-      Name: nodejs
-      Label: nodejs
-      InheritFrom: jnlp
-      ServiceAccount: jenkins
-      Containers:
-        Nodejs:
-          Name: nodejs
-          Image: "arnaudeprez/jenkins-agent-nodejs"
-          ImageTag: "latest"
-          Env:
+          resources:
+            requestCpu: "400m"
+            requestMemory: "512Mi"
+            limitCpu: "2"
+            limitMemory: "2048Mi"
+          command: "/usr/local/bin/run"
+          args: cat
+          ttyEnabled: true
+    nodejs:
+      name: nodejs
+      label: nodejs
+      inheritFrom: jnlp
+      serviceAccount: jenkins
+      containers:
+        nodejs:
+          name: nodejs
+          image: "jenkins-builder-nodejs"
+          imageTag: "latest"
+          env:
             CI: "true"
             NPM_MIRROR_URL: "http://nexus3:8081/repository/npm-public/"
             NPM_PUBLISH_URL: "http://nexus3:8081/repository/npm-releases/"
             NPM_PUBLISH_TOKEN: "NpmToken.b5505337-ffb2-3fac-8b3a-fcd81b8bb8fb"
-          Resources:
-            RequestCpu: "400m"
-            RequestMemory: "512Mi"
-            LimitCpu: "2"
-            LimitMemory: "2048Mi"
-          Command: "/usr/local/bin/run"
-          Args: cat
-          TtyEnabled: true
-    GradleNodejs:
-      Name: gradle-nodejs
-      Label: gradle-nodejs
-      InheritFrom: "gradle nodejs"
-      ServiceAccount: jenkins
+          resources:
+            requestCpu: "400m"
+            requestMemory: "512Mi"
+            limitCpu: "2"
+            limitMemory: "2048Mi"
+          command: "/usr/local/bin/run"
+          args: cat
+          ttyEnabled: true
+    gradleNodejs:
+      name: gradle-nodejs
+      label: gradle-nodejs
+      inheritFrom: "gradle nodejs"
+      serviceAccount: jenkins

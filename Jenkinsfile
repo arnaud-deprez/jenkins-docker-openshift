@@ -1,21 +1,17 @@
 #!/usr/bin/env groovy
 // Best practices: https://github.com/jenkinsci/pipeline-examples/blob/master/docs/BEST_PRACTICES.md
 
-def getProjectName() {
-  if (env.BRANCH_NAME != env.MASTER_BRANCH)
-    return "cicd-br-$env.BRANCH_NAME"
+def getTestProjectName() {
   return env.STAGING_PROJECT
 }
 
 def ensureProject(name) {
-  echo "Ensure project ${getProjectName()} exists..."  
+  echo "Ensure project ${name} exists..."  
   try {
-    openshift.withCluster() {
-      openshift.newProject(name)
-      if (name == env.STAGING_PROJECT) {
-        echo "Allow jenkins service account from $env.STAGING_PROJECT to edit cicd project"
-        openshift.policy('add-role-to-user', 'edit', "system:serviceaccount:$env.STAGING_PROJECT:jenkins", '--rolebinding-name=jenkins_staging_edit', '-n', 'cicd')
-      }
+    sh "oc new-project ${name}"
+    if (name == env.STAGING_PROJECT) {
+      echo "Allow jenkins service account from ${name} to edit cicd project"
+      sh "kubectl -n cicd create rolebinding jenkins_staging_admin --clusterrole=admin --serviceaccount=${name}:jenkins --dry-run -o yaml | kubectl -n cicd apply -f -"
     }
   } catch (e) {
     echo "WARN: Cannot create project because: $e"
@@ -25,74 +21,12 @@ def ensureProject(name) {
 def inProject = { name, block -> 
   openshift.withCluster() {
     openshift.withProject(name) {
-      echo "Run in project $name"
       block()
     }
   }
 }
 
-def buildImage(image) {
-  def build = openshift.process(readFile("$image/openshift/build-template.yml"))
-  def buildDockerConfig = openshift.apply(build).narrow('bc')
-  echo "Start building docker image: $image"
-  buildDockerConfig.startBuild("--from-dir=.")
-}
-
-def deployMaster(type, options = [:]) {
-  def project = openshift.project()
-  echo "Configure $type jenkins master in project $project"
-  def deployment = (type == 'persistent') ?
-    openshift.process(readFile('2/openshift/jenkins-persistent-template.yml'),
-      '-p', 'JENKINS_IMAGE_STREAM_TAG=jenkins-custom:latest', 
-      '-p', "NAMESPACE=$project", 
-      '-p', "VOLUME_CAPACITY=${options.get('volumeCapacity', '5Gi')}") : 
-    openshift.process(readFile('2/openshift/jenkins-ephemeral-template.yml'), 
-      '-p', 'JENKINS_IMAGE_STREAM_TAG=jenkins-custom:latest', 
-      '-p', "NAMESPACE=$project")
-  
-  // Do not replay PersistenceVolumeClaim if already exists
-  deployment = deployment.findAll {
-    openshift.selector('PersistentVolumeClaim', 'jenkins').exists() ?
-      it.kind != 'PersistentVolumeClaim' : 
-      true
-  }
-  echo "Apply: $deployment"
-  openshift.apply(deployment).narrow('dc').withEach { dc ->
-    timeout(time: 10, unit: 'MINUTES') {
-      dc.untilEach(1) {
-        it.rollout().status().out.contains('successfully rolled out')
-      }
-    }
-  }
-}
-
-def configureSlave(slave, type, options = [:]) {
-  def project = openshift.project()
-  echo "Configure $type jenkins slave $slave in project $project"
-  def cfg = (type == 'persistent' ? 
-    openshift.process(readFile("agent-${slave}/openshift/agent-config-${type}.yml"), 
-      '-p', "IMAGE=imagestreamtag:$project/${options.get('image')}:latest", 
-      '-p', "VOLUME_CAPACITY=${options.get('volumeCapacity', '10Gi')}") : 
-    openshift.process(readFile("agent-${slave}/openshift/agent-config-${type}.yml"), 
-      '-p', "IMAGE=imagestreamtag:$project/${options.get('image')}:latest"))
-  openshift.apply(cfg)
-}
-
-def deleteProjectIf(project, predicate = { it -> true }) {
-  if (predicate(project)) {
-    echo "Clean and delete project ${project}"
-    openshift.withCluster() {
-      openshift.withProject(project) {
-        def result = openshift.raw('delete', 'all,pvc', '--all')
-        echo "Delete output: $result.out"
-      }
-      def result = openshift.delete('project', project)
-      echo "Delete project: $result.out"
-    }
-  }
-}
-
-def tmpEnvPredicate = { name -> name != 'cicd' && name != env.STAGING_PROJECT }
+def agentLabel = 'base'
 
 pipeline {
   options {
@@ -100,7 +34,7 @@ pipeline {
     disableConcurrentBuilds()
   }
 
-  agent { label 'maven' }
+  agent { label agentLabel }
 
   environment {
     MASTER_BRANCH='master'
@@ -108,46 +42,29 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-        ensureProject(getProjectName())
-      }
-    }
     stage('Build') {
       // As Builds are already performed in other Pods, there is no need to do an extra parallelization here.
       steps {
-        script {
-          inProject(getProjectName()) {
-            ['2', 'agent-gradle', 'agent-nodejs'].collect {
-              buildImage(it)
-            }.each { build ->
-              echo "Verify build: ${build.name()}..."
-              timeout(time: 10, unit: 'MINUTES') {
-                build.untilEach(1) {
-                  it.object().status.phase == "Complete"
-                }
-              }
-            }
+        container(agentLabel) {
+          script {
+            ensureProject(env.STAGING_PROJECT)
+            sh """
+              export NAMESPACE=$env.STAGING_PROJECT
+              make --directory=charts/openshift-build --environment-overrides apply
+              make openshiftBuild
+            """
           }
         }
       }
     }
     stage('Deploy') {
       steps {
-        script {
-          inProject(getProjectName()) {
-            if (env.BRANCH_NAME == env.MASTER_BRANCH) {
-              deployMaster('persistent', [volumeCapacity: '1Gi'])
-              openshift.apply(openshift.process(readFile('openshift/pipeline-promote-template.yml')))
-            }
-            else {
-              deployMaster('ephemeral')
-            }
-            configureSlave('gradle', 'ephemeral', [image: 'jenkins-agent-gradle'])
-            configureSlave('nodejs', 'ephemeral', [image: 'jenkins-agent-nodejs'])
-            configureSlave('gradle-nodejs', 'ephemeral', [image: 'jenkins-agent-nodejs'])
-          }
+        container(agentLabel) {
+          sh """
+            export NAMESPACE=$env.STAGING_PROJECT
+            make --directory=charts/jenkins-openshift --environment-overrides applyFromBuild
+            okd-verify-workload $env.STAGING_PROJECT deployment/jenkins
+          """
         }
       }
     }
@@ -156,9 +73,12 @@ pipeline {
       parallel {
         stage('master') {
           steps {
-            script {
-              dir('2/test/integration-tests') {
-                sh "mvn -B test -Dservice=jenkins.${getProjectName()}.svc.cluster.local -Dport=80"
+            container(agentLabel) {
+              script {
+                echo "test master"
+                /* dir('2/test/integration-tests') {
+                  sh "mvn -B test -Dservice=jenkins.${getProjectName()}.svc.cluster.local -Dport=80"
+                } */
               }
             }
           }
@@ -166,19 +86,11 @@ pipeline {
         stage('Slaves') {
           // As test pipeline are already performed in other Pods, there is no need to do an extra parallelization here.
           steps {
-            script {
-              def project = getProjectName()
-              inProject(project) {
-                echo "Run test agent-test-pipeline in project $project"
-                def buildCfg = openshift.apply(readFile("openshift/agent-test-pipeline.yml")).narrow('bc')
-                def build = buildCfg.startBuild()
-                echo "Verify test pipeline ${build.name()}..."
-                timeout(time: 10, unit: 'MINUTES') {
-                  build.untilEach(1) {
-                    it.object().status.phase == "Complete"
-                  }
-                }
-              }
+            container(agentLabel) {
+              sh """
+                export NAMESPACE=$env.STAGING_PROJECT
+                make --environment-overrides openshiftTestPipeline
+              """
             }
           }
         }
@@ -187,12 +99,12 @@ pipeline {
     stage('Promote') {
       when { branch env.MASTER_BRANCH }
       steps {
-        script {
-          def project = getProjectName()
-          inProject(project) {
-            echo "Promoting Jenkins from $project to cicd... This jenkins will be replaced by the new one..."
-            openshift.startBuild('jenkins-promote-pipeline', '-e', "BRANCH_NAME=$env.BRANCH_NAME")
-          }
+        container(agentLabel) {
+          echo "Promoting Jenkins from $env.STAGING_PROJECT to cicd... This jenkins will be replaced by the new one..."
+          sh """
+            oc process -f openshift/promote-pipeline-template.yaml | oc -n $env.STAGING_PROJECT apply -f -
+            oc -n $env.STAGING_PROJECT start-build jenkins-promote-pipeline
+          """
         }
       }
     }
@@ -200,11 +112,9 @@ pipeline {
   post {
     aborted {
       echo "Pipeline ABORTED!"
-      deleteProjectIf(getProjectName(), tmpEnvPredicate)
     }
     success {
       echo "Pipeline SUCCESS!"
-      deleteProjectIf(getProjectName(), tmpEnvPredicate)
     }
   }
 }
