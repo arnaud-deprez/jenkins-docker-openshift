@@ -1,4 +1,4 @@
-FROM arnaudeprez/jenkins-agent-base:latest
+FROM arnaudeprez/jenkins-builder-base:latest
 
 MAINTAINER Arnaud Deprez<arnaudeprez@gmail.com>
 

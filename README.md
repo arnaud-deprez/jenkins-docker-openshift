@@ -25,16 +25,16 @@ In Openshift/Kubernetes and in this setup a jenkins slave is a [Pod template](ht
 These slaves are configured in the [helm](https://helm.sh/) chart [values.yaml](./charts/jenkins-openshift/values.yaml)
 Here is the current list of slaves with their containers:
 
-- jenkins-agent-base
+- base
   - [jnlp](./jnlp)
   - [builder-base](./builder-base)
-- jenkins-agent-gradle
+- gradle
   - [jnlp](./jnlp)
   - [builder-gradle](./builder-gradle)
-- jenkins-agent-nodejs
+- nodejs
   - [jnlp](./jnlp)
   - [builder-nodejs](./builder-nodejs)
-- jenkins-agent-gradle-nodejs
+- gradle-nodejs
   - [jnlp](./jnlp)
   - [builder-gradle](./builder-gradle)
   - [builder-nodejs](./builder-nodejs)
