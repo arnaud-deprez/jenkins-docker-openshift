@@ -9,9 +9,9 @@ function usage() {
 }
 
 function verifyDeployment() {
-    local type="deployment.apps"
     local namespace=$1
-    local workload=$2
+    local type=$2
+    local workload=$3
     local revision=$(kubectl -n ${namespace} get ${type}/${workload} -o=go-template --template='{{ index .metadata.annotations "deployment.kubernetes.io/revision" }}')
     local replicaset=$(kubectl -n ${namespace} get replicasets -l app.kubernetes.io/instance=${workload} -o go-template --template='{{range .items}}{{printf "%s=%s\n" .metadata.name (index .metadata.annotations "deployment.kubernetes.io/revision")}}{{end}}' | grep "=${revision}" | cut -d'=' -f1)
 
@@ -52,12 +52,12 @@ else
     workloads="${@:2}"
     for workload in $workloads
     do
-        type=$(cut -d'/' -f1 <<<"${workload}")
-        name=$(cut -d'/' -f2 <<<"${workload}")
+        type=${workload%%/*}
+        name=${workload#*/}
 
         case $type in
             deploy*)
-                verifyDeployment $namespace $name
+                verifyDeployment $namespace $type $name
                 ;;
             *)
                 echo "Unknown workload type: $type!"

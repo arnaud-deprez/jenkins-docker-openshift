@@ -10,7 +10,7 @@ function usage() {
 
 function verifyBuild() {
     local namespace=$1
-    local buildconfig=$2
+    local buildconfig=${2#*/}
     local revision=$(kubectl -n ${namespace} get buildconfig.build.openshift.io/${buildconfig} -o=go-template --template='{{.status.lastVersion}}')
 
     echo "watching in ${namespace} for build build.build.openshift.io/${buildconfig}-${revision} status..."
