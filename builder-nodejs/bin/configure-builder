@@ -1,5 +1,7 @@
 #/bin/bash
 
+source /usr/local/bin/configure-builder-base
+
 if [[ -n "$NPM_MIRROR_URL" ]]; then
   npm -g config set registry "$NPM_MIRROR_URL"
 fi
