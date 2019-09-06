@@ -11,6 +11,6 @@ if [ $(curl -sL -o /dev/null -w "%{http_code}" "$CHARTMUSEUM_URL") -eq 200 ]; th
 fi
 helm repo update
 
-source /usr/local/bin/configure-agent
+source /usr/local/bin/configure-builder
 
 exec $@

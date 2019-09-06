@@ -1,6 +1,6 @@
 FROM arnaudeprez/jenkins-builder-base:latest
 
-MAINTAINER Arnaud Deprez<arnaudeprez@gmail.com>
+LABEL maintainer="Arnaud Deprez<arnaudeprez@gmail.com>"
 
 ENV NPM_CONFIG_PREFIX=$HOME/.npm-global \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH
@@ -16,7 +16,9 @@ RUN curl -fsSL https://rpm.nodesource.com/setup_10.x | bash - && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     # rpm -V $INSTALL_PKGS && \
     yum clean all -y && \
-    rm -rf /var/cache/yum/*
+    rm -rf /var/cache/yum/* && \
+    # This is for overriding configure-builder
+    mv /usr/local/bin/configure-builder /usr/local/bin/configure-builder-base
 
 ADD bin/ /usr/local/bin/
 ADD test $HOME/test
