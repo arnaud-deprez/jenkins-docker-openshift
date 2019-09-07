@@ -201,7 +201,7 @@ Here is a non exhaustive list of operation you may want to perform:
 If Jenkins needs to deploy application in other project than its own, it needs to have the role edit.
 You can achieve it by giving this role to the Jenkins service account:
 
-Replace $PROJECT with the desired one:
+Replace `$JENKINS_PROJECT` and `$PROJECT` with the desired ones:
 
 ```sh
 kubectl create rolebinding jenkins_edit --clusterrole=edit --serviceaccount=$JENKINS_PROJECT:jenkins -n $PROJECT
@@ -218,7 +218,7 @@ kubectl create clusterrolebinding jenkins_self-provisioner --clusterrole=self-pr
 
 ### Allow a project B to pull image from another project A
 
-For this, you need to provide image-puller access, so that $PROJECT_B project can pull an image from the $PROJECT_A project.
+For this, you need to provide image-puller access, so that `$PROJECT_B` project can pull an image from the `$PROJECT_A` project.
 
 ```sh
 kubectl create rolebinding jenkins_system:image-puller --clusterrole=system:image-puller --group=system:serviceaccounts:$PROJECT_B -n $PROJECT_A
