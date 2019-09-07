@@ -16,9 +16,7 @@ RUN curl -fsSL https://rpm.nodesource.com/setup_10.x | bash - && \
     yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
     # rpm -V $INSTALL_PKGS && \
     yum clean all -y && \
-    rm -rf /var/cache/yum/* && \
-    # This is for overriding configure-builder
-    mv /usr/local/bin/configure-builder /usr/local/bin/configure-builder-base
+    rm -rf /var/cache/yum/*
 
 ADD bin/ /usr/local/bin/
 ADD test $HOME/test
